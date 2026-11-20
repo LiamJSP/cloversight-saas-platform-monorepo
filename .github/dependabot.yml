@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: docker
+    directory: /infra/docker/browser-worker
+    schedule:
+      interval: weekly
+    # Node major upgrades require an explicit Lambda platform migration.
+    ignore:
+      - dependency-name: public.ecr.aws/lambda/nodejs
+        update-types: [version-update:semver-major]
+    open-pull-requests-limit: 2

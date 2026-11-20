@@ -1,0 +1,12 @@
+---
+import { frontmatter as page } from '../content/404.md';
+import Site from '../layouts/Site.astro';
+import Brand from '../components/Brand.astro';
+import ui from '../data/labels.json';
+import s from '../styles/site.module.scss';
+---
+<Site page={page} error>
+  <section class={s['error-card']}><Brand /><p class="eyebrow">{page.eyebrow}</p><h1>{page.heading}</h1><p class={s.lead}>{page.lead}</p>
+    <div class={s['section-actions']}><a class="button" href="/">{ui.actions.return}</a><a class="button secondary" href="/support">{ui.actions.contact}</a></div>
+  </section>
+</Site>

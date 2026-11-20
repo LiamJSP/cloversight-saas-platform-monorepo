@@ -1,0 +1,13 @@
+---
+import ui from '../data/labels.json';
+---
+<a class="brand" href="/" aria-label={ui.home}>
+  <span class="brand-images">
+    {['cloversight', 'cloversight-mark'].map((asset, index) =>
+      ['light', 'dark'].map(theme => (
+        <img class={`brand-${index ? 'compact' : 'full'} brand-${theme}`}
+          src={`/static/brand/${asset}${theme === 'dark' ? '-dark' : ''}.svg?v=0.5.15`}
+          width={index ? 72 : 516} height="72" alt={!index && theme === 'light' ? ui.site : ''} />
+      )))}
+  </span>
+</a>

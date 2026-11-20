@@ -1,0 +1,22 @@
+---
+import Site from '../layouts/Site.astro';
+import PageHero from './PageHero.astro';
+import s from '../styles/site.module.scss';
+const { page } = Astro.props;
+---
+<Site page={page}>
+  <PageHero page={page} />
+  {page.cards && <section class={s['public-section']}><div class:list={[s['public-container'], s['security-grid']]}>
+    {page.cards.map(({ icon, title, description }) => <article class={s['security-card']}>
+      <span class={s['feature-icon']}>{icon}</span><h3>{title}</h3><p>{description}</p>
+    </article>)}
+  </div></section>}
+  <section class:list={[s['public-section'], page.cards && s.alt]}>
+    <div class:list={[s['public-container'], page.cards ? s['security-layout'] : s['legal-layout']]}>
+      <aside class={s['section-index']}><strong>{page.indexLabel}</strong>
+        {page.sections.map(({ href, label }) => <a href={href}>{label}</a>)}
+      </aside>
+      <div class={s.prose}><slot /></div>
+    </div>
+  </section>
+</Site>

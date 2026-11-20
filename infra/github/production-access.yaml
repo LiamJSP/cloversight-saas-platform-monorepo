@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: GitHub release access scoped to the installed Cloversight production resources.
+Parameters:
+  Repository: { Type: String, AllowedPattern: '[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+' }
+  RepositoryId: { Type: String, AllowedPattern: '[0-9]+' }
+  OwnerId: { Type: String, AllowedPattern: '[0-9]+' }
+  ImmutableSubject: { Type: String, AllowedPattern: 'repo:[A-Za-z0-9_.-]+@[0-9]+/[A-Za-z0-9_.-]+@[0-9]+:environment:production' }
+  StackArns: { Type: CommaDelimitedList }
+  WorkerRepositoryArns: { Type: CommaDelimitedList }
+  ArtifactBucket: { Type: String }
+  SiteBucketArns: { Type: CommaDelimitedList }
+  SiteObjectArns: { Type: CommaDelimitedList }
+  DistributionArns: { Type: CommaDelimitedList }
+  CertificateArns: { Type: CommaDelimitedList }
+  ZoneId: { Type: String }
+  ExecutionRoleArn: { Type: String }
+Resources:
+  ReleaseRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: cloversight-github-production
+      MaxSessionDuration: 7200
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com'
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                'token.actions.githubusercontent.com:aud': sts.amazonaws.com
+                'token.actions.githubusercontent.com:sub':
+                  - !Sub 'repo:${Repository}:environment:production'
+                  - !Ref ImmutableSubject
+                'token.actions.githubusercontent.com:repository_id': !Ref RepositoryId
+                'token.actions.githubusercontent.com:repository_owner_id': !Ref OwnerId
+                'token.actions.githubusercontent.com:ref': refs/heads/main
+                'token.actions.githubusercontent.com:job_workflow_ref': !Sub '${Repository}/.github/workflows/production.yml@refs/heads/main'
+      Policies:
+        - PolicyName: ExistingProductionRelease
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: [cloudformation:DescribeStacks, cloudformation:ListStackResources, cloudformation:DescribeStackEvents, cloudformation:GetTemplateSummary, cloudformation:DescribeChangeSet, cloudformation:ExecuteChangeSet, cloudformation:DeleteChangeSet, cloudformation:TagResource, cloudformation:UntagResource]
+                Resource: !Ref StackArns
+              - Effect: Allow
+                Action: cloudformation:CreateChangeSet
+                Resource: !Ref StackArns
+                Condition:
+                  StringEquals: { 'cloudformation:RoleArn': !Ref ExecutionRoleArn }
+              - Effect: Allow
+                Action: iam:PassRole
+                Resource: !Ref ExecutionRoleArn
+                Condition:
+                  StringEquals: { 'iam:PassedToService': cloudformation.amazonaws.com }
+              - Effect: Allow
+                Action: [cloudformation:ValidateTemplate, ecr:GetAuthorizationToken, lambda:GetAccountSettings, cognito-idp:DescribeUserPoolDomain, servicequotas:ListServiceQuotas, ce:ListCostAllocationTags, ses:GetIdentityVerificationAttributes, ses:DescribeReceiptRuleSet, cloudfront:ListDistributions, cloudfront:ListFunctions, cloudfront:ListCachePolicies, cloudfront:ListOriginRequestPolicies, cloudfront:ListResponseHeadersPolicies, cloudfront:ListOriginAccessControls]
+                Resource: '*'
+              - Effect: Allow
+                Action: acm:DescribeCertificate
+                Resource: !Ref CertificateArns
+              - Effect: Allow
+                Action: [route53:GetHostedZone, route53:ListResourceRecordSets]
+                Resource: !Sub 'arn:${AWS::Partition}:route53:::hostedzone/${ZoneId}'
+              - Effect: Allow
+                Action: sns:ListSubscriptionsByTopic
+                Resource: !Sub 'arn:${AWS::Partition}:sns:*:${AWS::AccountId}:webwatch-prod-*'
+              - Effect: Allow
+                Action: lambda:GetFunctionConcurrency
+                Resource: !Sub 'arn:${AWS::Partition}:lambda:*:${AWS::AccountId}:function:webwatch-prod-*'
+              - Effect: Allow
+                Action: dynamodb:DescribeTable
+                Resource: !Sub 'arn:${AWS::Partition}:dynamodb:us-east-1:${AWS::AccountId}:table/webwatch-prod-*'
+              - Effect: Allow
+                Action: [ecr:BatchGetImage, ecr:BatchCheckLayerAvailability, ecr:GetDownloadUrlForLayer, ecr:CompleteLayerUpload, ecr:InitiateLayerUpload, ecr:UploadLayerPart, ecr:PutImage, ecr:DescribeImages, ecr:DescribeRepositories]
+                Resource: !Ref WorkerRepositoryArns
+              - Effect: Allow
+                Action: [s3:GetBucketLocation, s3:ListBucket]
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${ArtifactBucket}'
+              - Effect: Allow
+                Action: [s3:GetObject, s3:PutObject, s3:AbortMultipartUpload]
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${ArtifactBucket}/webwatch/prod/*'
+              - Effect: Allow
+                Action: [s3:GetBucketLocation, s3:ListBucket]
+                Resource: !Ref SiteBucketArns
+              - Effect: Allow
+                Action: [s3:GetObject, s3:PutObject, s3:DeleteObject, s3:AbortMultipartUpload]
+                Resource: !Ref SiteObjectArns
+              - Effect: Allow
+                Action: [cloudfront:CreateInvalidation, cloudfront:GetInvalidation]
+                Resource: !Ref DistributionArns
+Outputs:
+  ProductionRoleArn: { Value: !GetAtt ReleaseRole.Arn }

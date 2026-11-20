@@ -1,0 +1,22 @@
+/* Supplied CLOVERSIGHT lockups. Loaded last so older portal mark rules cannot win. */
+.brand { max-width: 100%; min-width: 0; }
+.brand-images { max-width: 100%; min-width: 0; flex: 0 1 auto; display: inline-flex; align-items: center; padding: 4px; }
+.brand-images img { display: none; width: 344px; max-width: 100%; height: auto; margin: 0; }
+.brand-images .brand-full.brand-light { display: block; }
+[data-theme="dark"] .brand-images .brand-light { display: none; }
+[data-theme="dark"] .brand-images .brand-full.brand-dark { display: block; }
+.app-rail .brand-images img { width: 224px; }
+.steward-shell .app-rail .brand-images img { width: 244px; }
+@media (max-width: 1180px) { .public-nav > .brand .brand-images img { width: 258px; } }
+@media (max-width: 980px) {
+  .public-nav > .brand .brand-images .brand-full { display: none; }
+  .public-nav > .brand .brand-images .brand-compact.brand-light { display: block; width: 40px; }
+  [data-theme="dark"] .public-nav > .brand .brand-images .brand-light { display: none; }
+  [data-theme="dark"] .public-nav > .brand .brand-images .brand-compact.brand-dark { display: block; width: 40px; }
+}
+@media (max-width: 1200px) {
+  .app-rail > .brand .brand-images .brand-full { display: none; }
+  .app-rail > .brand .brand-images .brand-compact.brand-light { display: block; width: 40px; }
+  [data-theme="dark"] .app-rail > .brand .brand-images .brand-light { display: none; }
+  [data-theme="dark"] .app-rail > .brand .brand-images .brand-compact.brand-dark { display: block; width: 40px; }
+}

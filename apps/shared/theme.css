@@ -1,0 +1,746 @@
+/*
+ * CLOVERSIGHT portal theme
+ * Pico.css supplies the accessible semantic form/table foundation. This file
+ * owns the CLOVERSIGHT visual tokens and reusable primitives; portal-specific
+ * layout belongs in apps/customer/components.css.
+ */
+
+@font-face {
+  font-family: "Manrope Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("/static/manrope.woff2") format("woff2-variations");
+}
+
+:root {
+  color-scheme: only light;
+  --ww-canvas: #fcf9fb;
+  --ww-canvas-warm: #fffdfd;
+  --ww-surface: rgba(255, 255, 255, 0.76);
+  --ww-surface-solid: #ffffff;
+  --ww-surface-soft: #fbf7fa;
+  --ww-ink: #11101d;
+  --ww-copy: #5f5d78;
+  --ww-copy-soft: #68657c;
+  --ww-line: rgba(78, 51, 71, 0.14);
+  --ww-line-strong: rgba(105, 36, 79, 0.23);
+  --ww-plum: #78104e;
+  --ww-plum-deep: #520635;
+  --ww-pink: #cf2c82;
+  --ww-pink-soft: #fce8f4;
+  --ww-pink-glow: rgba(222, 52, 137, 0.18);
+  --ww-green: #007a46;
+  --ww-green-deep: #005c36;
+  --ww-green-soft: #e1f7ed;
+  --ww-orange: #ef6d4c;
+  --ww-orange-soft: #fff0e9;
+  --ww-red: #c5221f;
+  --ww-red-soft: #fff0ef;
+  --ww-amber: #9a5a00;
+  --ww-amber-soft: #fff4df;
+  --ww-radius-xs: 8px;
+  --ww-radius-sm: 12px;
+  --ww-radius-md: 18px;
+  --ww-radius-lg: 28px;
+  --ww-shadow-sm: 0 8px 26px rgba(69, 27, 55, 0.055);
+  --ww-shadow-md: 0 20px 54px rgba(69, 27, 55, 0.08);
+  --ww-shadow-float: 0 20px 50px rgba(70, 17, 52, 0.16);
+  --ww-focus: 0 0 0 5px rgba(120, 16, 78, 0.16);
+  --ww-control: rgba(255, 255, 255, 0.92);
+  --ww-control-hover: #ffffff;
+  --ww-elevated: rgba(255, 255, 255, 0.78);
+  --ww-elevated-strong: rgba(255, 255, 255, 0.97);
+  --ww-inset: rgba(250, 247, 249, 0.76);
+  --ww-table-hover: rgba(252, 241, 247, 0.58);
+  --ww-overlay: rgba(25, 13, 23, 0.52);
+  --ww-toast: rgba(25, 19, 27, 0.96);
+  --ww-on-toast: #ffffff;
+  --ww-brand-highlight: #fce8f4;
+  --ww-info: #155b7a;
+  --ww-info-soft: #edf7fc;
+  --ww-info-line: #bcddec;
+  --ww-success: #075d30;
+  --ww-success-soft: #eaf8f0;
+  --ww-success-line: #acdcbf;
+  --ww-warning-text: #704000;
+  --ww-warning-line: #e8c98d;
+  --ww-danger-text: #8d1f17;
+  --ww-danger-line: #e6aaa5;
+  --ww-ease-out: cubic-bezier(0.2, 0.78, 0.25, 1);
+  --ww-duration-fast: 170ms;
+  --ww-duration: 210ms;
+
+  --canvas: var(--ww-canvas);
+  --surface: var(--ww-surface-soft);
+  --ink: var(--ww-ink);
+  --muted: var(--ww-copy);
+  --brand: var(--ww-pink);
+  --action: var(--ww-green);
+  --deep: var(--ww-plum);
+  --danger: var(--ww-red);
+  --warning: var(--ww-amber);
+  --line: var(--ww-line);
+  --shadow: var(--ww-shadow-md);
+  --radius: var(--ww-radius-md);
+  --focus: var(--ww-focus);
+
+  --pico-font-family-sans-serif: "Manrope Variable", Manrope, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --pico-font-size: 100%;
+  --pico-line-height: 1.5;
+  --pico-color: var(--ww-ink);
+  --pico-background-color: var(--ww-canvas);
+  --pico-muted-color: var(--ww-copy);
+  --pico-card-background-color: var(--ww-surface-solid);
+  --pico-card-sectioning-background-color: var(--ww-surface-soft);
+  --pico-primary: var(--ww-green);
+  --pico-primary-hover: var(--ww-green-deep);
+  --pico-primary-inverse: #ffffff;
+  --pico-primary-focus: rgba(0, 143, 82, 0.22);
+  --pico-border-radius: var(--ww-radius-sm);
+  --pico-form-element-spacing-vertical: 0.72rem;
+  --pico-form-element-spacing-horizontal: 0.85rem;
+  --pico-form-element-border-color: rgba(75, 56, 71, 0.2);
+  --pico-form-element-background-color: var(--ww-control);
+  --pico-form-element-color: var(--ww-ink);
+  --pico-form-element-placeholder-color: var(--ww-copy-soft);
+  --pico-form-element-active-border-color: var(--ww-pink);
+  --pico-form-element-focus-color: rgba(207, 44, 130, 0.16);
+}
+
+.form-error-summary{grid-column:1 / -1;white-space:normal;overflow-wrap:anywhere}
+.form-error-summary:focus{outline:3px solid var(--ww-plum);outline-offset:3px}
+
+:root[data-theme="light"] {
+  color-scheme: only light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ww-canvas: #100e17;
+  --ww-canvas-warm: #15111b;
+  --ww-surface: rgba(31, 26, 39, 0.88);
+  --ww-surface-solid: #211b29;
+  --ww-surface-soft: #18141f;
+  --ww-ink: #faf6fb;
+  --ww-copy: #d1c9d7;
+  --ww-copy-soft: #b6abbc;
+  --ww-line: rgba(245, 226, 239, 0.18);
+  --ww-line-strong: rgba(255, 215, 239, 0.34);
+  --ww-plum: #ff9bd2;
+  --ww-plum-deep: #ffd0e9;
+  --ww-pink: #ff78bd;
+  --ww-pink-soft: #3d1b31;
+  --ww-pink-glow: rgba(255, 120, 189, 0.2);
+  --ww-green: #54dba0;
+  --ww-green-deep: #9cf1c9;
+  --ww-green-soft: #143729;
+  --ww-orange: #ff9b7f;
+  --ww-orange-soft: #43251f;
+  --ww-red: #ff918e;
+  --ww-red-soft: #421e21;
+  --ww-amber: #ffd080;
+  --ww-amber-soft: #3f301c;
+  --ww-shadow-sm: 0 10px 28px rgba(0, 0, 0, 0.28);
+  --ww-shadow-md: 0 22px 56px rgba(0, 0, 0, 0.34);
+  --ww-shadow-float: 0 24px 62px rgba(0, 0, 0, 0.5);
+  --ww-focus: 0 0 0 5px rgba(255, 155, 210, 0.24);
+  --ww-control: #211b29;
+  --ww-control-hover: #2a2233;
+  --ww-elevated: rgba(31, 26, 39, 0.9);
+  --ww-elevated-strong: rgba(35, 29, 43, 0.98);
+  --ww-inset: rgba(18, 15, 24, 0.72);
+  --ww-table-hover: rgba(255, 120, 189, 0.09);
+  --ww-overlay: rgba(4, 3, 7, 0.74);
+  --ww-toast: #f8f2f7;
+  --ww-on-toast: #19131d;
+  --ww-brand-highlight: #442039;
+  --ww-info: #91d7f4;
+  --ww-info-soft: #172f3a;
+  --ww-info-line: #356b80;
+  --ww-success: #9cf1c9;
+  --ww-success-soft: #143729;
+  --ww-success-line: #347858;
+  --ww-warning-text: #ffd080;
+  --ww-warning-line: #765a2c;
+  --ww-danger-text: #ffaaa7;
+  --ww-danger-line: #804146;
+  --pico-color: var(--ww-ink);
+  --pico-muted-color: var(--ww-copy);
+  --pico-primary: #2bbf7f;
+  --pico-primary-hover: #46d596;
+  --pico-primary-focus: rgba(84, 219, 160, 0.25);
+  --pico-primary-inverse: #071b12;
+  --pico-form-element-border-color: rgba(245, 226, 239, 0.25);
+  --pico-form-element-active-border-color: var(--ww-pink);
+  --pico-form-element-focus-color: rgba(255, 120, 189, 0.24);
+}
+
+body.pico {
+  margin: 0;
+  color: var(--ww-ink);
+  background: var(--ww-canvas);
+  font-family: var(--pico-font-family-sans-serif);
+  font-optical-sizing: auto;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body.pico :where(h1, h2, h3, h4, p, ul, ol) {
+  color: inherit;
+}
+
+body.pico :where(h1, h2, h3, h4) {
+  font-family: inherit;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+body.pico :where(a, button, input, select, textarea, summary) {
+  transition:
+    color var(--ww-duration-fast) ease,
+    background-color var(--ww-duration-fast) ease,
+    border-color var(--ww-duration-fast) ease,
+    box-shadow var(--ww-duration) var(--ww-ease-out),
+    transform var(--ww-duration) var(--ww-ease-out),
+    opacity var(--ww-duration-fast) ease;
+}
+
+body.pico :where(button, .button) {
+  position: relative;
+  overflow: hidden;
+  min-height: 44px;
+  margin: 0;
+  padding: 0.72rem 1.05rem;
+  border: 1px solid transparent;
+  border-radius: var(--ww-radius-sm);
+  background: linear-gradient(135deg, #007a46, var(--ww-green-deep));
+  box-shadow: 0 9px 22px rgba(0, 125, 72, 0.16);
+  color: #fff;
+  font-weight: 760;
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+}
+
+body.pico :where(button, .button)::after {
+  display: none;
+}
+
+body.pico :where(button, .button):not(.sidebar button)::after {
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 28%, rgba(255, 255, 255, 0.24) 49%, transparent 70%);
+  content: "";
+  pointer-events: none;
+  transform: translateX(-130%);
+  transition: transform 640ms var(--ww-ease-out);
+}
+
+body.pico :where(button, .button):hover {
+  background: linear-gradient(135deg, #006d3f, #004c2d);
+  box-shadow: 0 13px 28px rgba(0, 125, 72, 0.23);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+body.pico :where(button, .button):not(.sidebar button):hover::after {
+  transform: translateX(130%);
+}
+
+body.pico :where(button, .button):active {
+  box-shadow: 0 5px 12px rgba(0, 125, 72, 0.16);
+  transform: translateY(0);
+}
+
+body.pico :where(button.secondary, .button.secondary) {
+  border-color: var(--ww-line);
+  background: var(--ww-elevated);
+  box-shadow: none;
+  color: var(--ww-plum);
+}
+
+body.pico :where(button.secondary, .button.secondary):hover {
+  border-color: var(--ww-line-strong);
+  background: var(--ww-surface-solid);
+  box-shadow: var(--ww-shadow-sm);
+  color: var(--ww-plum-deep);
+}
+
+body.pico button.danger {
+  border-color: rgba(197, 34, 31, 0.18);
+  background: var(--ww-elevated);
+  box-shadow: none;
+  color: var(--ww-red);
+}
+
+body.pico button.danger:hover {
+  border-color: rgba(197, 34, 31, 0.28);
+  background: var(--ww-red-soft);
+  box-shadow: 0 9px 22px rgba(197, 34, 31, 0.1);
+  color: #a51c1a;
+}
+
+body.pico button:disabled {
+  opacity: 0.52;
+  box-shadow: none;
+  filter: saturate(0.55);
+  transform: none;
+}
+
+body.pico :where(button, .button, a, input, select, textarea, summary):focus-visible {
+  outline: 3px solid var(--ww-plum);
+  outline-offset: 3px;
+  box-shadow: var(--ww-focus);
+}
+
+body.pico :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  margin: 0;
+  border: 1px solid var(--ww-line-strong);
+  border-radius: var(--ww-radius-sm);
+  background: var(--ww-control);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--ww-ink) 4%, transparent) inset;
+  color: var(--ww-ink);
+}
+
+body.pico :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea):hover {
+  border-color: color-mix(in srgb, var(--ww-plum) 52%, var(--ww-line));
+}
+
+body.pico :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus {
+  border-color: var(--ww-pink);
+  background: var(--ww-control-hover);
+  box-shadow: var(--ww-focus);
+}
+
+body.pico :where(input[type="checkbox"], input[type="radio"]) {
+  width: 1.35rem;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  margin: 0;
+  border: 2px solid color-mix(in srgb, var(--ww-copy) 72%, transparent);
+  background-color: var(--ww-control);
+  box-shadow: none;
+}
+
+body.pico :where(input[type="checkbox"], input[type="radio"]):checked {
+  border-color: #007a46;
+  background-color: #007a46;
+}
+
+:root[data-theme="dark"] body.pico :where(input[type="checkbox"], input[type="radio"]):checked {
+  border-color: #2fc989;
+  background-color: #2fc989;
+}
+
+body.pico label.check:has(input:checked) {
+  border-color: color-mix(in srgb, var(--ww-green) 55%, var(--ww-line));
+  background: color-mix(in srgb, var(--ww-green-soft) 66%, transparent);
+}
+
+body.pico label.check:has(input:focus-visible) {
+  outline: 3px solid var(--ww-plum);
+  outline-offset: 3px;
+}
+
+body.pico :where(input[type="checkbox"], input[type="radio"]):disabled {
+  opacity: 0.58;
+}
+
+body.pico .card {
+  border: 1px solid var(--ww-line);
+  border-radius: var(--ww-radius-md);
+  background: var(--ww-surface);
+  box-shadow: var(--ww-shadow-sm);
+  backdrop-filter: blur(18px);
+}
+
+body.pico .eyebrow {
+  margin: 0 0 0.9rem;
+  color: var(--ww-plum);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+body.pico .muted {
+  color: var(--ww-copy);
+}
+
+body.pico .badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 32px;
+  padding: 0.28rem 0.72rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: #f0eef1;
+  color: #514b54;
+  font-size: 0.76rem;
+  font-weight: 720;
+  line-height: 1;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+body.pico .badge.green {
+  border-color: rgba(0, 143, 82, 0.08);
+  background: var(--ww-green-soft);
+  color: var(--ww-green-deep);
+}
+
+body.pico .badge.pink {
+  border-color: rgba(207, 44, 130, 0.08);
+  background: var(--ww-pink-soft);
+  color: var(--ww-plum);
+}
+
+body.pico .badge.amber {
+  border-color: rgba(154, 90, 0, 0.08);
+  background: var(--ww-amber-soft);
+  color: var(--ww-amber);
+}
+
+body.pico .badge.red {
+  border-color: rgba(197, 34, 31, 0.08);
+  background: var(--ww-red-soft);
+  color: var(--ww-red);
+}
+
+body.pico .table-wrap {
+  border-color: var(--ww-line);
+  border-radius: var(--ww-radius-sm);
+  background: color-mix(in srgb, var(--ww-elevated) 78%, transparent);
+}
+
+body.pico table {
+  margin: 0;
+  border-collapse: collapse;
+}
+
+body.pico :where(th, td) {
+  border-color: rgba(78, 51, 71, 0.1);
+}
+
+body.pico th {
+  background: var(--ww-inset);
+  color: var(--ww-copy);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+body.pico tbody tr {
+  transition: background-color var(--ww-duration-fast) ease;
+}
+
+body.pico tbody tr:hover {
+  background: var(--ww-table-hover);
+}
+
+body.pico .notice {
+  border: 1px solid var(--ww-info-line);
+  border-radius: var(--ww-radius-sm);
+  background: var(--ww-info-soft);
+  color: var(--ww-info);
+  line-height: 1.55;
+}
+
+body.pico .notice.warn {
+  border-color: var(--ww-warning-line);
+  background: var(--ww-amber-soft);
+  color: var(--ww-warning-text);
+}
+
+body.pico .notice.error {
+  border-color: var(--ww-danger-line);
+  background: var(--ww-red-soft);
+  color: var(--ww-danger-text);
+}
+
+body.pico .notice.success {
+  border-color: var(--ww-success-line);
+  background: var(--ww-success-soft);
+  color: var(--ww-success);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 1000;
+  top: 12px;
+  left: 12px;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--ww-plum);
+  border-radius: var(--ww-radius-sm);
+  background: var(--ww-surface-solid);
+  box-shadow: var(--ww-shadow-float);
+  color: var(--ww-plum-deep);
+  font-weight: 800;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform var(--ww-duration) var(--ww-ease-out);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+body.pico .theme-toggle {
+  min-width: 126px;
+  min-height: 44px;
+  gap: 0.55rem;
+  white-space: nowrap;
+}
+
+.theme-toggle-icon {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  box-shadow: inset 6px -5px 0 -3px currentColor;
+  transform: rotate(-18deg);
+  transition: transform var(--ww-duration) var(--ww-ease-out), box-shadow var(--ww-duration) var(--ww-ease-out);
+}
+
+[data-theme="dark"] .theme-toggle-icon {
+  box-shadow: inset 0 0 0 4px currentColor;
+  transform: rotate(0);
+}
+
+[data-theme="dark"] body.pico :where(button, .button):not(.secondary):not(.danger) {
+  background: linear-gradient(135deg, #08724a, #055b3b);
+  color: #ffffff;
+}
+
+[data-theme="dark"] body.pico :where(button.secondary, .button.secondary) {
+  color: var(--ww-plum-deep);
+}
+
+[data-theme="dark"] body.pico button.danger {
+  border-color: rgba(255, 145, 142, 0.35);
+  color: var(--ww-red);
+}
+
+[data-theme="dark"] body.pico button.danger:hover {
+  color: #ffd1cf;
+}
+
+[data-theme="dark"] body.pico .badge {
+  border-color: var(--ww-line);
+  background: #2b2532;
+  color: #e4dce7;
+}
+
+[data-theme="dark"] body.pico .badge.green {
+  border-color: rgba(84, 219, 160, 0.24);
+  background: var(--ww-green-soft);
+  color: var(--ww-green-deep);
+}
+
+[data-theme="dark"] body.pico .badge.pink {
+  border-color: rgba(255, 120, 189, 0.25);
+  background: var(--ww-pink-soft);
+  color: var(--ww-plum-deep);
+}
+
+[data-theme="dark"] body.pico .badge.amber {
+  border-color: rgba(255, 208, 128, 0.24);
+  background: var(--ww-amber-soft);
+  color: var(--ww-amber);
+}
+
+[data-theme="dark"] body.pico .badge.red {
+  border-color: rgba(255, 145, 142, 0.25);
+  background: var(--ww-red-soft);
+  color: var(--ww-red);
+}
+
+/* Shared legacy components still used by both portals. Keep every state on
+   semantic surfaces so an operating-system dark preference cannot expose a
+   light island inside the explicitly selected dark theme. */
+html,
+body.pico {
+  background-color: var(--ww-canvas);
+}
+
+body.pico ::selection {
+  background: color-mix(in srgb, var(--ww-pink) 34%, transparent);
+  color: var(--ww-ink);
+}
+
+[data-theme="dark"] body.pico :where(hr) {
+  border-color: var(--ww-line);
+}
+
+[data-theme="dark"] body.pico :where(select option) {
+  background: var(--ww-surface-solid);
+  color: var(--ww-ink);
+}
+
+[data-theme="dark"] body.pico :where(input, textarea):-webkit-autofill,
+[data-theme="dark"] body.pico :where(input, textarea):-webkit-autofill:hover,
+[data-theme="dark"] body.pico :where(input, textarea):-webkit-autofill:focus {
+  box-shadow: 0 0 0 1000px var(--ww-control) inset;
+  -webkit-text-fill-color: var(--ww-ink);
+  caret-color: var(--ww-ink);
+}
+
+[data-theme="dark"] body.pico :where(.recipient-row, .screen-stage) {
+  border-color: var(--ww-line);
+  background: var(--ww-inset);
+  color: var(--ww-ink);
+}
+
+[data-theme="dark"] body.pico .method-icon {
+  background: var(--ww-pink-soft);
+  color: var(--ww-plum-deep);
+}
+
+[data-theme="dark"] body.pico :where(.diff-count.added, .diff-inline.added) {
+  background: var(--ww-green-soft);
+  color: var(--ww-green-deep);
+}
+
+[data-theme="dark"] body.pico :where(.diff-count.removed, .diff-inline.removed) {
+  background: var(--ww-red-soft);
+  color: var(--ww-red);
+}
+
+[data-theme="dark"] body.pico .diff-copy.added {
+  border-left-color: var(--ww-green);
+  background: color-mix(in srgb, var(--ww-green-soft) 82%, var(--ww-surface-solid));
+  color: var(--ww-ink);
+}
+
+[data-theme="dark"] body.pico .diff-copy.removed {
+  border-left-color: var(--ww-red);
+  background: color-mix(in srgb, var(--ww-red-soft) 82%, var(--ww-surface-solid));
+  color: var(--ww-ink);
+}
+
+[data-theme="dark"] body.pico :where(.deep-button, .deep-button.secondary, .screen-tabs button.active) {
+  border-color: #8f3a70;
+  background: #65234e;
+  color: #ffffff;
+}
+
+[data-theme="dark"] body.pico :where(.deep-button, .deep-button.secondary, .screen-tabs button.active):hover {
+  border-color: #b85590;
+  background: #7b2c5f;
+  color: #ffffff;
+}
+
+[data-theme="dark"] body.pico .skeleton {
+  background: linear-gradient(90deg, #211b29, #302737, #211b29);
+  background-size: 200% 100%;
+}
+
+@keyframes ww-enter {
+  from {
+    opacity: 0;
+    transform: translateY(9px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ww-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 158, 89, 0.18); }
+  50% { box-shadow: 0 0 0 7px rgba(0, 158, 89, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  body.pico *,
+  body.pico *::before,
+  body.pico *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  body.pico :where(button, .button):not(.sidebar button)::after {
+    display: none;
+  }
+}
+
+/* Precision control layer: quiet depth, consistent geometry, and deliberately
+   eased feedback across public, customer, and steward experiences. */
+body.pico :where(button, .button) {
+  border-color: color-mix(in srgb, var(--ww-green-deep) 78%, transparent);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.12), transparent 48%),
+    linear-gradient(118deg, #076f4a, #058052 58%, #056b46);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.2),
+    0 8px 20px rgba(0, 92, 54, 0.16);
+  letter-spacing: -0.006em;
+  transition:
+    color 180ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease,
+    box-shadow 320ms var(--ww-ease-out),
+    transform 320ms var(--ww-ease-out),
+    opacity 180ms ease;
+}
+
+body.pico :where(button, .button):hover {
+  border-color: color-mix(in srgb, var(--ww-green) 65%, var(--ww-line));
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.17), transparent 48%),
+    linear-gradient(118deg, #075f41, #087b51 58%, #064b35);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 12px 26px rgba(0, 92, 54, 0.2);
+  transform: translateY(-1px);
+}
+
+body.pico :where(button.secondary, .button.secondary) {
+  border-color: color-mix(in srgb, var(--ww-line-strong) 76%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--ww-control-hover) 88%, transparent), color-mix(in srgb, var(--ww-control) 84%, transparent));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 45%, transparent), 0 5px 14px rgba(55, 25, 46, 0.035);
+}
+
+body.pico :where(button.secondary, .button.secondary):hover {
+  border-color: color-mix(in srgb, var(--ww-plum) 35%, var(--ww-line));
+  background: var(--ww-control-hover);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent), 0 9px 22px rgba(55, 25, 46, 0.09);
+}
+
+:root[data-theme="dark"] body.pico :where(button, .button) {
+  border-color: rgba(84, 219, 160, 0.34);
+  background: linear-gradient(180deg, rgba(255,255,255,.1), transparent 48%), linear-gradient(118deg, #0a6b49, #12855b 58%, #0b5b40);
+  color: #f9fffc;
+}
+
+:root[data-theme="dark"] body.pico :where(button.secondary, .button.secondary) {
+  border-color: var(--ww-line-strong);
+  background: linear-gradient(180deg, #2a2233, #211b29);
+  color: var(--ww-plum-deep);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 6px 18px rgba(0,0,0,.18);
+}

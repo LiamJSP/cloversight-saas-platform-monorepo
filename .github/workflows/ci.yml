@@ -1,0 +1,219 @@
+name: CLOVERSIGHT verification
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Operation after successful verification
+        type: choice
+        options: [verify, inspect-production, deploy-production, staging]
+        default: verify
+      run_load_probe:
+        description: Run the bounded staging read probe after verification
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-security:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Audit the locked application and build-tool dependency tree
+        run: npm audit --audit-level=high
+      - name: Record root dependency SBOM
+        run: npm sbom --sbom-format cyclonedx > root.sbom.cdx.json
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        with:
+          name: root-dependency-sbom
+          path: root.sbom.cdx.json
+          retention-days: 30
+
+  runtime-dependency-security:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: lambda-runtime
+            directory: infra/runtime
+          - name: browser-worker
+            directory: infra/docker/browser-worker
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Inspect the deployed dependency manifest and source lock
+        run: node infra/runtime/dependency-evidence.mjs check "${{ matrix.directory }}" --require-locks
+      - name: Install and audit the locked runtime tree
+        if: ${{ hashFiles(format('{0}/package-lock.json', matrix.directory)) != '' }}
+        run: npm ci --prefix "${{ matrix.directory }}" --omit=dev --ignore-scripts --no-audit --no-fund && npm audit --prefix "${{ matrix.directory }}" --omit=dev --audit-level=high
+      - name: Record runtime dependency SBOM
+        if: ${{ hashFiles(format('{0}/package-lock.json', matrix.directory)) != '' }}
+        run: npm sbom --prefix "${{ matrix.directory }}" --omit=dev --sbom-format cyclonedx > "${{ matrix.name }}.sbom.cdx.json"
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        if: ${{ hashFiles(format('{0}/package-lock.json', matrix.directory)) != '' }}
+        with:
+          name: ${{ matrix.name }}-dependency-sbom
+          path: ${{ matrix.name }}.sbom.cdx.json
+          retention-days: 30
+
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r infra/requirements-iac.txt
+      - run: npm ci
+      - run: npm run verify
+
+  worker-image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Build and exercise changed worker inputs
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [[ -n "$BASE" ]] && git cat-file -e "$BASE^{commit}" 2>/dev/null &&
+            git diff --quiet "$BASE" HEAD -- infra/docker/browser-worker infra/github/test-worker.sh infra/scripts/build-worker-image.sh scripts/worker-base.mjs src .dockerignore .github/workflows/ci.yml; then
+            echo 'Worker inputs are unchanged.'
+          else
+            bash infra/github/test-worker.sh
+          fi
+
+  browser:
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - run: npm run test:browser:docker
+
+  documentation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r docs/requirements.txt
+      - run: npm ci
+      - run: npm run docs:generate
+      - run: npm run docs:site
+      - run: git diff --exit-code -- docs/reference/cloudformation.md docs/reference/gateway-routes.md
+
+  # Run manually on main only AFTER this commit has been deployed to staging.
+  # Staging WAF also requires a runner with a dedicated, allowlisted egress IP.
+  staging:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'staging' && github.ref == 'refs/heads/main' }}
+    needs: [browser, dependency-security, runtime-dependency-security]
+    environment: staging-validation
+    runs-on: ${{ vars.STAGING_HOSTED_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 55
+    concurrency:
+      group: webwatch-staging-validation
+      cancel-in-progress: false
+    env:
+      WEBWATCH_TEST_BASE_URL: ${{ vars.WEBWATCH_TEST_BASE_URL }}
+      WEBWATCH_TEST_EXPECTED_HOST: ${{ vars.WEBWATCH_TEST_EXPECTED_HOST }}
+      WEBWATCH_TEST_ACCOUNT_A: ${{ vars.WEBWATCH_TEST_ACCOUNT_A }}
+      WEBWATCH_TEST_ACCOUNT_B: ${{ vars.WEBWATCH_TEST_ACCOUNT_B }}
+      WEBWATCH_TEST_COGNITO_DOMAIN: ${{ vars.WEBWATCH_TEST_COGNITO_DOMAIN }}
+      WEBWATCH_TEST_COGNITO_HOST: ${{ vars.WEBWATCH_TEST_COGNITO_HOST }}
+      WEBWATCH_TEST_COGNITO_ISSUER: ${{ vars.WEBWATCH_TEST_COGNITO_ISSUER }}
+      WEBWATCH_TEST_COGNITO_CLIENT_ID: ${{ vars.WEBWATCH_TEST_COGNITO_CLIENT_ID }}
+      WEBWATCH_TEST_REFRESH_TOKEN_A: ${{ secrets.WEBWATCH_TEST_REFRESH_TOKEN_A }}
+      WEBWATCH_TEST_REFRESH_TOKEN_B: ${{ secrets.WEBWATCH_TEST_REFRESH_TOKEN_B }}
+      WEBWATCH_TEST_CHECK_WATCHER_ID: ${{ vars.WEBWATCH_TEST_CHECK_WATCHER_ID }}
+      WEBWATCH_TEST_CHECK_URL: ${{ vars.WEBWATCH_TEST_CHECK_URL }}
+      WEBWATCH_TEST_CHECK_REGIONS: ${{ vars.WEBWATCH_TEST_CHECK_REGIONS }}
+      WEBWATCH_TEST_STRIPE_WEBHOOK_URL: ${{ vars.WEBWATCH_TEST_STRIPE_WEBHOOK_URL }}
+      WEBWATCH_TEST_FAIL_ON_WARNING: ${{ vars.WEBWATCH_TEST_FAIL_ON_WARNING || '0' }}
+      WEBWATCH_TEST_ALLOW_CHECK: '1'
+      WEBWATCH_TEST_MAX_USD: '2.00'
+      WEBWATCH_TEST_MAX_REQUESTS: '20'
+      WEBWATCH_TEST_DURATION_SECONDS: '30'
+      WEBWATCH_TEST_CONCURRENCY: '2'
+      WEBWATCH_TEST_INTERVAL_MS: '500'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - run: npm ci
+      - name: Mint short-lived Cognito access tokens
+        run: npm run test:staging:tokens
+      - name: API, tenant, payment boundary, and one live regional check
+        run: npm run test:staging:ci
+      - name: Renew browser token before its 15-minute expiry
+        run: npm run test:staging:tokens
+      - run: npm run test:staging:browser:docker
+      - if: ${{ inputs.run_load_probe }}
+        run: npm run test:load:plan
+      - if: ${{ inputs.run_load_probe }}
+        run: npm run test:load -- --execute
+
+  production:
+    needs: [verify, worker-image, browser, documentation, dependency-security, runtime-dependency-security]
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      ((github.event_name == 'push' && vars.PRODUCTION_AUTO_DEPLOY == 'true') ||
+       (github.event_name == 'workflow_dispatch' && (inputs.target == 'inspect-production' || inputs.target == 'deploy-production')))
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/production.yml
+    with:
+      operation: ${{ inputs.target == 'inspect-production' && 'inspect' || 'deploy' }}

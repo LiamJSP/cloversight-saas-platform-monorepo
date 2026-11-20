@@ -1,0 +1,62 @@
+CLOVERSIGHT 0.5.17 — customer abuse and plan enforcement verification
+Review date: 2026-11-13
+Source: supplied cloversight-saas-release-0.5.16(1).zip
+Source SHA-256: 52c619809c1166fac572c433866209f77e29d4007628c2e685cf07738c8aa6bf
+Runtime: Node v24.22.1; npm 11.9.0
+
+Observed local verification
+---------------------------
+npm run verify
+  211 deterministic tests passed; zero failures/cancellations/skips.
+  174 JavaScript files parsed.
+  Primary CloudFormation: 178 resources, no duplicate YAML keys.
+  Regional CloudFormation: 17 resources, no duplicate YAML keys.
+  IaC source validation passed, including 18 source shell scripts.
+  Static application build and target-picker extension packaging passed.
+
+The final package:release command reruns that gate on the archived source.
+Additional oversized-transaction checks cover both entity limits and large
+Unicode rule payloads; renewal commits and resumption batches stay below
+DynamoDB's transaction byte ceiling as well as the entity-count ceiling.
+
+npm audit --package-lock-only --ignore-scripts --json
+  Root lock: 0 known vulnerabilities.
+  Managed Lambda lock: 0 known vulnerabilities.
+  Browser-worker lock: 0 known vulnerabilities.
+  This is a point-in-time registry audit, not a container/browser/OS scan.
+
+npm run docs:reference
+  Generated 26 gateway routes and 195 primary/regional resources.
+npm run docs:js
+  Completed; generated source browser is included in the release ZIP.
+git diff --check
+  Passed.
+
+Baseline comparisons
+  Primary, regional and bootstrap CloudFormation are byte-identical to 0.5.16.
+  All three lockfiles retain exactly the same resolved dependency trees.
+  Release metadata advances to 0.5.17; worker transport tag advances to r41.
+  No new GSI, table replacement, secret rotation or Stripe Price is required.
+  cfn-lint was not rerun in the replacement workspace; see the preceding
+  0.5.16 assessment for its checks of these unchanged template bytes.
+
+Scope of new tests
+  Exact six-plan matrix; stale index and concurrent final-slot claims;
+  deletion/undo counters; administrative reconciliation without ledger reset;
+  preserved cadence/evidence/recovery; paced 250-watcher admission; atomic
+  credits and attempts; manual queue/local rejection; cancellation charging;
+  known infrastructure refund exactly once; finite refunded-attempt budget;
+  temporary recipients; GSM/Unicode SMS and reply instructions; invitation
+  opt-outs, expiry, destination cooldown and daily budgets; account request
+  and daily mutation limits; plan cycling and consumed-credit downgrades;
+  paid renewal replay after plan change; raw subscription status isolation;
+  pre-charge entity/byte rejection; bounded large-account renewal resumption.
+
+Limits
+  Cohort tests use deterministic fake persistence/providers, not live AWS.
+  No cloud deployment/account inspection, Docker/browser acceptance, actual
+  messages/payments, container scan or restore drill was performed.
+  Node 22 verification remains a CI/owner gate; this workspace used Node 24.
+  Provider retries are bounded and metered, not an exactly-once guarantee.
+  No physical dollar or retained-byte meter was added. See the abuse review
+  for signup, renderer, global-read, retention and lifecycle limitations.

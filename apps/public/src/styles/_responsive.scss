@@ -1,0 +1,613 @@
+@use 'breakpoints' as bp;
+
+@media (max-width: bp.$menu) {
+  :global(.public-header) {
+    /* A filtered ancestor becomes a containing block for fixed descendants in
+       WebKit. Disable it here so the mobile navigation truly owns the viewport. */
+    backdrop-filter: none;
+  }
+
+  .public-menu-toggle {
+    display: inline-flex;
+    order: 3;
+  }
+
+  body:global(.pico) .public-mobile-cta {
+    display: inline-flex;
+    height: 44px;
+    min-height: 44px;
+    margin-left: auto;
+    padding: 0.62rem 0.82rem;
+    order: 2;
+    font-size: 0.78rem;
+    text-decoration: none;
+  }
+
+  :global(.public-nav-links) {
+    position: fixed;
+    z-index: 110;
+    inset: 0;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    padding: max(92px, calc(env(safe-area-inset-top) + 76px)) 24px max(44px, env(safe-area-inset-bottom));
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+    overflow-y: auto;
+    border: 0;
+    border-radius: 0;
+    background:
+      radial-gradient(circle at 88% 8%, rgba(207, 44, 130, 0.2), transparent 25rem),
+      radial-gradient(circle at 12% 92%, rgba(0, 143, 82, 0.13), transparent 24rem),
+      #fffafd;
+    box-shadow: none;
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    clip-path: polygon(50% 0, 50% 0, 62% 0, 38% 0);
+    transform: perspective(900px) rotateX(-72deg) translateY(-10%);
+    transform-origin: top center;
+    transition: opacity 180ms ease, transform 360ms var(--ww-ease-out), clip-path 360ms var(--ww-ease-out), visibility 0s linear 360ms;
+  }
+
+  :global(.public-nav-links)[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    transform: perspective(900px) rotateX(0) translateY(0);
+    transition-delay: 0s;
+    animation: public-origami-open 460ms var(--ww-ease-out) both;
+  }
+
+  body:global(.public-menu-open) {
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  body:global(.public-menu-open) :global(.public-nav-links) {
+    touch-action: pan-y;
+  }
+
+  body:global(.pico) :global(.public-menu-close) {
+    position: absolute;
+    top: max(18px, env(safe-area-inset-top));
+    right: max(18px, env(safe-area-inset-right));
+    display: inline-grid;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    min-height: 48px;
+    padding: 0;
+    place-items: center;
+    border-radius: 50%;
+  }
+
+  :global(.public-menu-close) span {
+    position: relative;
+    display: block;
+    width: 21px;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    transform: rotate(45deg);
+  }
+
+  :global(.public-menu-close) span::after {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    content: "";
+    transform: rotate(90deg);
+  }
+
+  :global(.public-nav-links) :global(.public-menu-items) > a:not(:global(.button)) {
+    display: inline-flex;
+    width: min(320px, calc(100vw - 48px));
+    min-height: 46px;
+    padding: 0.82rem;
+    align-items: center;
+    justify-content: center;
+    color: var(--ww-ink);
+    font-size: clamp(1.15rem, 4.8vw, 1.55rem);
+  }
+
+  body:global(.pico) :global(.public-nav-links) :global(.button) {
+    width: min(320px, calc(100vw - 48px));
+    min-height: 50px;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+  .public-hero h1 {
+    font-size: clamp(3.2rem, 7.8vw, 4.4rem);
+  }
+
+  .feature-grid,
+  .security-grid,
+  .support-grid,
+  .price-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .support-grid > :last-child,
+  .security-grid > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .footer-grid {
+    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(140px, 0.45fr));
+    gap: 1.5rem;
+  }
+}
+
+@keyframes public-origami-open {
+  0% { opacity: 0; clip-path: polygon(50% 0, 50% 0, 62% 0, 38% 0); transform: perspective(900px) rotateX(-72deg) translateY(-10%); }
+  55% { opacity: 1; clip-path: polygon(0 0, 100% 0, 88% 58%, 12% 58%); transform: perspective(900px) rotateX(-18deg) translateY(-2%); }
+  100% { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: perspective(900px) rotateX(0) translateY(0); }
+}
+
+@supports not (clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%)) {
+  @media (max-width: bp.$menu) {
+    :global(.public-nav-links) { clip-path: none; transform: translateX(-100%); }
+    :global(.public-nav-links)[data-open="true"] { clip-path: none; transform: translateX(0); animation: none; }
+  }
+}
+
+@media (max-width: bp.$tablet) {
+  .hero-globe:global(.ww-regional) { top: 29%; right: -30%; width: 115vw; height: 68%; opacity: 0.78; }
+  .hero-globe-caption { right: 25%; bottom: 3%; }
+  .public-container {
+    width: min(100% - 28px, 680px);
+  }
+
+  .public-hero {
+    min-height: auto;
+    padding: 62px 0 66px;
+  }
+
+  .hero-grid,
+  .section-heading,
+  .workflow,
+  .faq-grid,
+  .legal-layout,
+  .security-layout,
+  .status-layout,
+  .support-primary,
+  .public-cta,
+  .payments-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-grid {
+    gap: 42px;
+  }
+
+  .public-hero::before {
+    top: 32%;
+    right: -45%;
+    width: 105vw;
+    box-shadow: 0 0 0 45px rgba(255, 255, 255, 0.24), 0 0 0 46px rgba(120, 16, 78, 0.04);
+  }
+
+  .public-hero::after {
+    right: 7%;
+    bottom: 3%;
+    width: 90px;
+  }
+
+  .workflow {
+    gap: 1px;
+  }
+
+  .workflow-step {
+    min-height: 0;
+  }
+
+  .step-number {
+    margin-bottom: 1rem;
+  }
+
+  .section-index {
+    position: static;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer-grid > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: bp.$phone) {
+  .hero-globe:global(.ww-regional) { top: 43%; right: -42%; width: 135vw; height: 50%; opacity: 0.62; }
+  .hero-globe-caption { right: 27%; bottom: 1%; }
+  html {
+    scroll-padding-top: 72px;
+  }
+
+  :global(.public-nav) {
+    min-height: 66px;
+    gap: 0.55rem;
+  }
+
+  :global(.brand) {
+    font-size: 1.18rem;
+  }
+
+
+  body:global(.pico) .public-mobile-cta {
+    height: 44px;
+    min-height: 44px;
+    padding-inline: 0.68rem;
+    font-size: 0.72rem;
+  }
+
+  .public-hero {
+    padding: 48px 0 54px;
+  }
+
+  .public-hero h1 {
+    max-width: 11ch;
+    font-size: clamp(2.35rem, 10.5vw, 2.75rem);
+    line-height: 1.02;
+  }
+
+  .page-hero {
+    padding: 46px 0 38px;
+  }
+
+  .page-hero h1 {
+    font-size: clamp(2.2rem, 10.5vw, 2.8rem);
+    line-height: 1.02;
+  }
+
+  .page-hero::after {
+    top: -110px;
+    right: -125px;
+    width: 290px;
+    box-shadow: 0 0 0 35px rgba(255, 255, 255, 0.18), 0 0 0 36px rgba(120, 16, 78, 0.035);
+  }
+
+  .lead {
+    font-size: 1rem;
+    line-height: 1.58;
+  }
+
+  .hero-actions :global(.button),
+  .section-actions :global(.button),
+  .support-primary :global(.button),
+  .public-cta :global(.button) {
+    width: 100%;
+  }
+
+  .monitor-card {
+    padding: 1rem;
+    border-radius: 20px;
+  }
+
+  .status-row {
+    min-height: 76px;
+  }
+
+  .public-section {
+    padding: 52px 0;
+  }
+
+  .section-heading {
+    gap: 1rem;
+  }
+
+  .section-heading h2,
+  .public-cta h2 {
+    font-size: 2.15rem;
+  }
+
+  .feature-grid,
+  .security-grid,
+  .support-grid,
+  .price-grid,
+  .payment-methods,
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-method {
+    min-height: 76px;
+  }
+
+  .support-grid > :last-child,
+  .security-grid > :last-child:nth-child(odd),
+  .footer-grid > :first-child {
+    grid-column: auto;
+  }
+
+  .price-card {
+    padding: 1.3rem;
+  }
+
+  .price {
+    margin: 1rem 0;
+  }
+
+  .support-primary,
+  .public-cta {
+    gap: 1.25rem;
+  }
+
+  .public-footer {
+    padding-top: 42px;
+  }
+}
+
+/* Shared tertiary action treatment: quieter than the green page action while
+   remaining visually deliberate on both marketing and account-entry pages. */
+body:global(.pico):global(.public-site) a:global(.button):global(.secondary):not(.public-menu-toggle) {
+  border-color: color-mix(in srgb, var(--ww-plum) 24%, var(--ww-line));
+  background: color-mix(in srgb, var(--ww-pink-soft) 34%, var(--ww-elevated));
+  color: var(--ww-plum);
+  box-shadow: 0 7px 18px rgba(83, 18, 61, 0.055);
+}
+
+body:global(.pico):global(.public-site) a:global(.button):global(.secondary):not(.public-menu-toggle):hover {
+  border-color: color-mix(in srgb, var(--ww-pink) 46%, var(--ww-line));
+  background: color-mix(in srgb, var(--ww-pink-soft) 58%, var(--ww-elevated));
+  color: var(--ww-plum-deep);
+  box-shadow: 0 10px 24px rgba(83, 18, 61, 0.09);
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  html {
+    scroll-padding-top: 64px;
+  }
+
+  :global(.public-nav) {
+    min-height: 56px;
+  }
+
+  :global(.brand) {
+    font-size: 1.08rem;
+  }
+
+
+  .public-hero,
+  .page-hero {
+    padding-block: 30px;
+  }
+
+  .public-hero {
+    min-height: calc(100dvh - 56px);
+  }
+
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(270px, 0.9fr);
+    gap: 28px;
+  }
+
+  .public-hero h1 {
+    max-width: 14ch;
+    font-size: clamp(2.3rem, 6vw, 3.15rem);
+  }
+
+  .page-hero h1 {
+    font-size: clamp(2.2rem, 5.5vw, 3rem);
+  }
+
+  .lead {
+    margin-top: 0.75rem;
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .hero-actions {
+    margin-top: 1rem;
+  }
+
+  .microcopy {
+    margin-top: 0.55rem;
+  }
+
+  .monitor-card {
+    padding: 0.75rem 1rem;
+  }
+
+  .status-row {
+    min-height: 58px;
+    padding-block: 0.35rem;
+  }
+
+  .status-row:last-child {
+    display: none;
+  }
+
+  .public-hero::before,
+  .public-hero::after,
+  .page-hero::after {
+    opacity: 0.5;
+  }
+
+  .public-section {
+    padding: 38px 0;
+  }
+
+  .section-heading {
+    margin-bottom: 1.25rem;
+  }
+
+  .workflow-step {
+    min-height: 190px;
+    padding: 1.3rem;
+  }
+
+  .step-number {
+    margin-bottom: 0.75rem;
+  }
+
+  .price-card {
+    min-height: 0;
+    padding: 1.15rem;
+  }
+
+  .price-card .list-clean {
+    margin-bottom: 0.9rem;
+  }
+
+  .support-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .support-grid > :last-child {
+    grid-column: auto;
+  }
+
+  .public-footer {
+    padding-block: 34px;
+  }
+}
+
+@media (max-width: bp.$tablet) {
+  .comparison-hint {
+    display: block;
+  }
+
+  .comparison-wrap {
+    position: relative;
+    margin-top: 0;
+    scrollbar-color: var(--ww-pink) transparent;
+  }
+
+  .comparison-wrap:focus-visible {
+    outline: 3px solid var(--ww-plum);
+    outline-offset: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .monitor-card {
+    animation: public-card-enter 620ms var(--ww-ease-out) both;
+  }
+
+  .feature-card,
+  .security-card,
+  .support-card,
+  .price-card {
+    transition: border-color var(--ww-duration) ease, box-shadow var(--ww-duration) ease, transform var(--ww-duration) var(--ww-ease-out);
+  }
+
+  .feature-card:hover,
+  .security-card:hover,
+  .support-card:hover,
+  .price-card:hover {
+    border-color: var(--ww-line-strong);
+    box-shadow: var(--ww-shadow-md);
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes public-card-enter {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Keep repeated marketing cards on a shared visual baseline even when copy
+   wraps differently at intermediate desktop widths. */
+.feature-grid,
+.security-grid,
+.support-grid,
+.price-grid {
+  align-items: stretch;
+  grid-auto-rows: 1fr;
+}
+
+.feature-card,
+.security-card,
+.support-card,
+.price-card {
+  height: 100%;
+}
+
+.support-card {
+  min-height: 300px;
+}
+
+.price-card {
+  min-height: 420px;
+}
+
+.price-card .plan-cadence {
+  min-height: 2.55em;
+  line-height: 1.45;
+}
+
+.monitor-card .status-row {
+  min-height: 72px;
+}
+
+@media (max-width: bp.$phone) {
+  .feature-grid,
+  .security-grid,
+  .support-grid,
+  .price-grid {
+    grid-auto-rows: auto;
+  }
+
+  .support-card,
+  .price-card,
+  .price-card .plan-cadence {
+    min-height: 0;
+  }
+}
+
+/* The menu header owns the close control; only the links scroll on short phones. */
+:global(.public-menu-items) { display: contents; }
+:global(.public-menu-header) { display: none; }
+@media (max-width: bp.$menu) {
+  body:global(.public-site) { padding-top: calc(77px + env(safe-area-inset-top)); }
+  :global(.public-nav) { min-height: calc(76px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); }
+  :global(.public-header) { position: fixed; inset: 0 0 auto; }
+  :global(.public-nav-links) {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: stretch;
+    justify-content: stretch;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+  :global(.public-menu-header) {
+    display: flex;
+    min-height: 76px;
+    padding: max(14px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) 14px max(18px, env(safe-area-inset-left));
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--ww-line);
+    background: var(--ww-elevated-strong);
+  }
+  :global(.public-menu-header) :global(.brand-images) img { width: min(258px, 58vw); }
+  body:global(.pico) :global(.public-menu-close) { position: static; flex: 0 0 48px; margin: 0; }
+  :global(.public-menu-items) {
+    display: flex;
+    min-height: 0;
+    padding: 1rem 24px max(24px, env(safe-area-inset-bottom));
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+  }
+  body:global(.pico) :global(.public-menu-items) > a { flex-shrink: 0; margin: 0; }
+  body:global(.pico) :global(.public-menu-items) > a + a { margin-top: 1rem; }
+}

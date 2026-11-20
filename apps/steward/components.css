@@ -1,0 +1,1065 @@
+/* Steward-specific composition. Shared tokens, controls, and themes live in theme.css. */
+
+body.steward-shell {
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: radial-gradient(circle at 88% 8%, rgba(207, 44, 130, 0.1), transparent 28rem), var(--ww-canvas);
+}
+
+.steward-shell .app-topbar {
+  position: sticky;
+  z-index: 80;
+  top: 0;
+  display: flex;
+  min-height: 72px;
+  height: auto;
+  padding: 10px clamp(16px, 3vw, 36px);
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--ww-line);
+  background: var(--ww-elevated-strong);
+  box-shadow: 0 8px 30px rgba(69, 27, 55, 0.05);
+  backdrop-filter: blur(20px);
+}
+
+.steward-shell .app-topbar .actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.steward-shell .brand {
+  color: var(--ww-ink);
+}
+
+
+.steward-entry {
+  padding: clamp(1.5rem, 4vw, 2.6rem);
+  background: var(--ww-elevated);
+}
+
+.steward-entry h1 {
+  max-width: 18ch;
+  margin: 0 0 1rem;
+  font-size: clamp(2rem, 6vw, 3.35rem);
+  line-height: 1.03;
+}
+
+.steward-entry p {
+  max-width: 65ch;
+}
+
+.steward-entry #entry-error {
+  margin-top: 1rem;
+}
+
+.steward-entry hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid var(--ww-line);
+}
+
+.steward-shell .app-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  min-height: calc(100dvh - 72px);
+}
+
+.steward-shell .sidebar {
+  position: sticky;
+  top: 72px;
+  display: grid;
+  height: calc(100dvh - 72px);
+  padding: 18px 12px;
+  align-content: start;
+  gap: 0.42rem;
+  border-right: 1px solid var(--ww-line);
+  background: var(--ww-elevated);
+}
+
+body.pico.steward-shell .sidebar button {
+  width: 100%;
+  min-height: 50px;
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  justify-content: flex-start;
+  border: 1px solid transparent;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ww-copy);
+  text-align: left;
+  transform: none;
+}
+
+body.pico.steward-shell .sidebar button:hover,
+body.pico.steward-shell .sidebar button.active {
+  border-color: var(--ww-line);
+  background: var(--ww-brand-highlight);
+  color: var(--ww-plum-deep);
+}
+
+.steward-shell .workspace {
+  width: 100%;
+  min-width: 0;
+  padding: clamp(20px, 3vw, 42px);
+}
+
+.steward-shell .workspace-header {
+  display: flex;
+  margin-bottom: 1.4rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.steward-shell .workspace-header h1,
+.steward-shell .workspace-header h2 {
+  margin: 0 0 0.45rem;
+  line-height: 1.08;
+}
+
+.steward-shell .workspace-header p {
+  margin-bottom: 0;
+}
+
+.steward-shell .metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.steward-shell .metric {
+  min-height: 120px;
+  padding: 1.2rem;
+  border: 1px solid var(--ww-line);
+  border-radius: var(--ww-radius-md);
+  background: var(--ww-elevated);
+  box-shadow: var(--ww-shadow-sm);
+}
+
+.steward-shell .metric strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--ww-ink);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.steward-shell .metric span {
+  color: var(--ww-copy);
+  line-height: 1.35;
+}
+
+.steward-shell .card {
+  padding: clamp(1.15rem, 2vw, 1.65rem);
+}
+
+.steward-shell .split,
+.steward-shell .grid-3,
+.steward-shell .form-grid {
+  gap: 1rem;
+}
+
+.steward-shell .field > label {
+  margin-bottom: 0.42rem;
+  font-weight: 720;
+  line-height: 1.35;
+}
+
+.steward-shell .field small {
+  display: block;
+  margin-top: 0.42rem;
+  color: var(--ww-copy);
+  line-height: 1.45;
+}
+
+.steward-shell .table-wrap {
+  overflow: auto;
+  border: 1px solid var(--ww-line);
+  background: var(--ww-elevated);
+}
+
+.steward-shell table {
+  min-width: 760px;
+}
+
+.steward-shell :where(th, td) {
+  padding: 0.85rem 1rem;
+  line-height: 1.45;
+}
+
+.steward-shell .modal {
+  position: fixed;
+  z-index: 500;
+  inset: 0;
+  display: grid;
+  width: 100vw;
+  height: 100dvh;
+  margin: 0;
+  padding: 16px;
+  place-items: center;
+  background: var(--ww-overlay);
+  backdrop-filter: blur(10px);
+}
+
+.steward-shell .modal-panel {
+  display: flex;
+  width: min(980px, calc(100vw - 32px));
+  max-width: 980px;
+  max-height: calc(100dvh - 32px);
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  overflow: auto;
+  border: 1px solid var(--ww-line-strong);
+  border-radius: 22px;
+  background: var(--ww-surface-solid);
+  box-shadow: var(--ww-shadow-float);
+}
+
+.steward-shell .modal-panel > .workspace-header,
+.steward-shell .staff-confirm-header {
+  position: sticky;
+  z-index: 4;
+  top: 0;
+  margin: 0 0 1rem;
+  padding: 1.25rem 1.4rem;
+  border-bottom: 1px solid var(--ww-line);
+  background: var(--ww-elevated-strong);
+}
+
+.steward-shell .modal-panel > :not(.workspace-header):not(.staff-confirm-header) {
+  margin-right: 1.4rem;
+  margin-left: 1.4rem;
+}
+
+.steward-shell .modal-panel > .form-actions {
+  position: sticky;
+  bottom: 0;
+  margin: 1.2rem 0 0;
+  padding: 1rem 1.4rem max(1rem, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--ww-line);
+  background: var(--ww-elevated-strong);
+}
+
+.steward-shell .staff-confirm-panel {
+  width: min(560px, calc(100vw - 32px));
+}
+
+.steward-shell .staff-confirm-body {
+  padding-bottom: 0.5rem;
+}
+
+.steward-shell .toast {
+  z-index: 700;
+  color: var(--ww-on-toast);
+  background: var(--ww-toast);
+}
+
+[data-theme="dark"] .steward-shell {
+  background: radial-gradient(circle at 88% 8%, rgba(255, 120, 189, 0.08), transparent 28rem), var(--ww-canvas);
+}
+
+[data-theme="dark"] .steward-shell :where(.app-topbar, .sidebar, .steward-entry, .metric, .table-wrap) {
+  border-color: var(--ww-line);
+  background-color: var(--ww-elevated);
+  color: var(--ww-ink);
+}
+
+[data-theme="dark"] .steward-shell .app-topbar {
+  background: var(--ww-elevated-strong);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="dark"] .steward-shell .sidebar {
+  background: var(--ww-surface-soft);
+}
+
+[data-theme="dark"] .steward-shell .modal-panel,
+[data-theme="dark"] .steward-shell .modal-panel > .workspace-header,
+[data-theme="dark"] .steward-shell .staff-confirm-header,
+[data-theme="dark"] .steward-shell .modal-panel > .form-actions {
+  border-color: var(--ww-line);
+  background: var(--ww-elevated-strong);
+  color: var(--ww-ink);
+}
+
+.steward-shell .metrics,
+.steward-shell .split,
+.steward-shell .grid-3 {
+  align-items: stretch;
+}
+
+.steward-shell .metrics {
+  grid-auto-rows: 1fr;
+}
+
+.steward-shell .metric,
+.steward-shell .split > .card {
+  height: 100%;
+}
+
+.steward-shell .split > .card {
+  display: flex;
+  min-height: 270px;
+  flex-direction: column;
+}
+
+.steward-shell .split > .card > form.field {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+
+.steward-shell .split > .card > form.field > button {
+  margin-top: auto;
+}
+
+.steward-shell .suppression-intro {
+  margin-bottom: 1rem;
+  border-color: color-mix(in srgb, var(--ww-pink) 32%, var(--ww-line));
+}
+
+.steward-shell .suppression-intro p {
+  max-width: 76ch;
+  margin: 0.35rem 0 0;
+}
+
+.steward-shell .suppression-tools {
+  margin-bottom: 1rem;
+}
+
+.steward-shell .suppression-register {
+  padding: 1rem;
+}
+
+.steward-shell .suppression-register > .workspace-header {
+  margin-bottom: 0.8rem;
+}
+
+@media (max-width: 980px) {
+  .steward-shell .app-layout {
+    display: block;
+  }
+
+  .steward-shell .sidebar {
+    position: static;
+    display: flex;
+    height: auto;
+    padding: 10px 12px;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--ww-line);
+  }
+
+  body.pico.steward-shell .sidebar button {
+    width: auto;
+    min-width: max-content;
+  }
+
+  .steward-shell .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .steward-shell .app-topbar {
+    min-height: 64px;
+    padding: 8px 10px;
+  }
+
+  .steward-shell .app-topbar .brand > .brand-label {
+    font-size: 0.88rem;
+  }
+
+  .steward-shell .app-topbar .badge {
+    display: none;
+  }
+
+  .steward-shell #sign-out {
+    min-width: 44px;
+    padding-inline: 0.65rem;
+    font-size: 0.72rem;
+  }
+
+  .steward-shell .workspace {
+    padding: 18px 12px 34px;
+  }
+
+  .steward-shell .metrics,
+  .steward-shell .split,
+  .steward-shell .grid-3,
+  .steward-shell .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .steward-shell .table-wrap {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .steward-shell table.responsive-records,
+  .steward-shell table.responsive-records tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .steward-shell table.responsive-records thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .steward-shell table.responsive-records tbody {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .steward-shell table.responsive-records tr {
+    display: grid;
+    padding: 0.85rem;
+    border: 1px solid var(--ww-line);
+    border-radius: 14px;
+    background: var(--ww-elevated);
+    box-shadow: var(--ww-shadow-sm);
+  }
+
+  .steward-shell table.responsive-records td {
+    display: block;
+    min-width: 0;
+    padding: 0.5rem 0.6rem;
+    border: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .steward-shell table.responsive-records td::before {
+    display: block;
+    margin-bottom: 0.22rem;
+    color: var(--ww-copy-soft);
+    content: attr(data-label);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .steward-shell .modal {
+    padding: 0;
+  }
+
+  .steward-shell .modal-panel,
+  .steward-shell .staff-confirm-panel {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .steward-shell .split > .card {
+    min-height: 0;
+  }
+}
+
+/* 0.3.61: customer-portal shell parity, balanced operations layouts, and
+   route-aware responsive steward navigation. */
+body.steward-shell {
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 82% 14%, color-mix(in srgb, var(--ww-pink) 11%, transparent), transparent 25rem),
+    var(--ww-canvas);
+}
+
+.steward-shell #steward-root {
+  min-height: calc(100dvh - 72px);
+}
+
+.steward-shell .entry-topbar[hidden] + #steward-root,
+.steward-shell .entry-topbar[hidden] + #steward-root .app-layout {
+  min-height: 100dvh;
+}
+
+.steward-shell .app-layout {
+  display: grid;
+  grid-template-columns: 272px minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+.steward-shell .app-rail {
+  position: sticky;
+  z-index: 60;
+  top: 0;
+  display: flex;
+  height: 100dvh;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--ww-line);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--ww-elevated-strong) 97%, transparent), color-mix(in srgb, var(--ww-elevated) 91%, transparent)),
+    var(--ww-surface-solid);
+  box-shadow: 14px 0 46px rgba(83, 30, 64, 0.035);
+}
+
+.steward-shell .app-rail > .brand {
+  z-index: 3;
+  display: flex;
+  min-height: 96px;
+  padding: 0 30px;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--ww-ink);
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+
+.steward-shell .portal-menu-toggle {
+  display: none;
+}
+
+.steward-shell .sidebar {
+  position: relative;
+  top: auto;
+  z-index: 3;
+  display: flex;
+  height: auto;
+  min-height: 0;
+  padding: 12px 14px;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-content: initial;
+  justify-content: flex-start;
+  gap: 0.45rem;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+}
+
+body.pico.steward-shell .sidebar button {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 54px;
+  margin: 0;
+  padding: 0 18px;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
+  border: 0;
+  border-radius: 0 14px 14px 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ww-copy);
+  font-size: 0.93rem;
+  font-weight: 610;
+  text-align: left;
+  transform: none;
+}
+
+body.pico.steward-shell .sidebar button::before {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: -14px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, #ee3a9b, #a71468);
+  box-shadow: 0 0 16px rgba(207, 44, 130, 0.32);
+  content: "";
+  opacity: 0;
+  transform: scaleY(0.45);
+  transition: opacity 180ms ease, transform 260ms var(--ww-ease-out);
+}
+
+body.pico.steward-shell .sidebar button::after {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ww-pink-soft) 80%, transparent), color-mix(in srgb, var(--ww-pink) 13%, transparent));
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms var(--ww-ease-out);
+}
+
+body.pico.steward-shell .sidebar button:hover::after,
+body.pico.steward-shell .sidebar button.active::after {
+  opacity: 1;
+}
+
+body.pico.steward-shell .sidebar button.active {
+  color: var(--ww-plum-deep);
+  font-weight: 760;
+}
+
+body.pico.steward-shell .sidebar button.active::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.steward-shell .sidebar button > :where(svg, span) {
+  position: relative;
+  z-index: 1;
+}
+
+.steward-shell .sidebar svg {
+  width: 23px;
+  height: 23px;
+  flex: 0 0 23px;
+  margin-right: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.steward-shell .rail-signature {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 250px;
+  margin-top: auto;
+  padding: 0 34px 46px;
+  align-items: flex-end;
+}
+
+.steward-shell .rail-signature::before,
+.steward-shell .rail-signature::after {
+  position: absolute;
+  right: 72px;
+  bottom: 48px;
+  width: 330px;
+  height: 330px;
+  border: 1px solid color-mix(in srgb, var(--ww-plum) 12%, transparent);
+  border-radius: 44%;
+  content: "";
+  pointer-events: none;
+  animation: steward-rail-ring 62s linear infinite;
+}
+
+.steward-shell .rail-signature::after {
+  right: 93px;
+  bottom: 64px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--ww-pink-soft) 34%, transparent), transparent);
+  animation-duration: 78s;
+  animation-direction: reverse;
+}
+
+.steward-shell .rail-orbit {
+  position: absolute;
+  right: 23px;
+  bottom: 106px;
+  width: 120px;
+  height: 120px;
+  overflow: visible;
+}
+
+.steward-shell .orbit-svg {
+  display: block;
+  overflow: visible;
+}
+
+.steward-shell .rail-orbit-svg {
+  position: absolute;
+  top: -16px;
+  left: -16px;
+  width: 152px;
+  height: 152px;
+}
+
+.steward-shell .orbit-ring-path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--ww-pink) 42%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.steward-shell .orbit-planet {
+  filter: drop-shadow(0 9px 13px rgba(176, 35, 113, 0.2));
+}
+
+.steward-shell .orbit-planet-glint {
+  fill: rgba(255, 255, 255, 0.36);
+  filter: blur(1.4px);
+}
+
+.steward-shell .orbit-moon {
+  stroke: rgba(255, 246, 198, 0.86);
+  stroke-width: 1;
+  filter: drop-shadow(0 0 4px rgba(244, 191, 66, 0.76)) drop-shadow(0 3px 3px rgba(87, 50, 6, 0.24));
+  vector-effect: non-scaling-stroke;
+}
+
+.steward-shell .orbit-moon-back-layer { opacity: 0.62; }
+.steward-shell .orbit-moon-front-layer { opacity: 1; }
+.steward-shell .orbit-moon-static { display: none; }
+.steward-shell .orbit-planet-art { transform-box: fill-box; transform-origin: center; }
+.steward-shell .rail-planet-art { animation: steward-planet-turn 34s linear infinite; }
+
+.steward-shell .rail-signature p {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  color: var(--ww-copy-soft);
+  font-size: 0.67rem;
+  font-weight: 650;
+  letter-spacing: 0.36em;
+  line-height: 1.85;
+  text-transform: uppercase;
+}
+
+.steward-shell .rail-signature p::after {
+  display: block;
+  width: 42px;
+  height: 1px;
+  margin-top: 19px;
+  background: var(--ww-pink);
+  content: "";
+}
+
+.steward-shell .app-stage {
+  position: relative;
+  min-width: 0;
+  isolation: isolate;
+  background:
+    linear-gradient(134deg, transparent 0 69%, color-mix(in srgb, var(--ww-plum) 3%, transparent) 69.1% 72%, transparent 72.1%) bottom right / 52% 48% no-repeat,
+    radial-gradient(circle at 76% 18%, color-mix(in srgb, var(--ww-pink-soft) 24%, transparent), transparent 23rem),
+    var(--ww-canvas);
+}
+
+.steward-shell .app-stage::before {
+  position: absolute;
+  z-index: -1;
+  top: 104px;
+  right: 6%;
+  width: clamp(240px, 28vw, 430px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 62% 32%, rgba(255, 255, 255, 0.56) 0 4%, transparent 5%),
+    repeating-radial-gradient(ellipse at 45% 48%, color-mix(in srgb, var(--ww-plum) 4%, transparent) 0 1px, transparent 2px 8px),
+    radial-gradient(circle at 40% 38%, color-mix(in srgb, var(--ww-elevated-strong) 88%, transparent), color-mix(in srgb, var(--ww-pink-soft) 32%, transparent) 48%, transparent 68%);
+  content: "";
+  opacity: 0.78;
+  pointer-events: none;
+  animation: steward-ambient-float 18s ease-in-out infinite;
+}
+
+.steward-shell .app-stage::after {
+  position: absolute;
+  z-index: -1;
+  top: -350px;
+  right: 13%;
+  width: 640px;
+  height: 640px;
+  border: 68px solid color-mix(in srgb, var(--ww-plum) 7%, transparent);
+  border-radius: 32%;
+  box-shadow: 0 0 0 54px color-mix(in srgb, var(--ww-elevated) 55%, transparent), 0 0 0 55px color-mix(in srgb, var(--ww-plum) 6%, transparent);
+  content: "";
+  pointer-events: none;
+  animation: steward-stage-ring 96s linear infinite;
+}
+
+.steward-shell .app-stage .app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: grid;
+  height: 92px;
+  min-height: 92px;
+  padding: 0 32px;
+  grid-template-columns: minmax(180px, 1fr) auto auto;
+  align-items: center;
+  gap: 1.25rem;
+  border: 0;
+  border-bottom: 1px solid var(--ww-line);
+  border-radius: 0 0 0 45px;
+  background: color-mix(in srgb, var(--ww-elevated-strong) 78%, transparent);
+  box-shadow: 0 10px 40px rgba(82, 24, 62, 0.035);
+  backdrop-filter: blur(22px);
+}
+
+.steward-shell .topbar-context,
+.steward-shell .topbar-summary {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.steward-shell .topbar-context {
+  color: var(--ww-ink);
+  font-weight: 760;
+}
+
+.steward-shell .status-dot {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border-radius: 50%;
+  background: var(--ww-green);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--ww-green) 11%, transparent);
+}
+
+.steward-shell .steward-identity {
+  max-width: 260px;
+  overflow: hidden;
+  color: var(--ww-copy);
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.steward-shell .workspace {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 1600px);
+  min-width: 0;
+  margin-inline: auto;
+  padding: clamp(24px, 3.2vw, 48px);
+}
+
+.steward-shell .metrics {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.steward-shell .metric {
+  min-height: 132px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--ww-elevated) 92%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.steward-shell .card {
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--ww-elevated) 94%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.steward-shell .lookup-card {
+  width: min(100%, 920px);
+}
+
+.steward-shell .lookup-form {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  align-items: end;
+  gap: 1rem;
+}
+
+body.pico.steward-shell .lookup-form > button,
+body.pico.steward-shell .field > button,
+body.pico.steward-shell .actions > button {
+  width: auto;
+  max-width: 100%;
+}
+
+body.pico.steward-shell .lookup-form > button {
+  min-width: 160px;
+  white-space: nowrap;
+}
+
+.steward-shell .grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.steward-shell .grid-3 > div {
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--ww-line);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--ww-surface-soft) 75%, transparent);
+}
+
+.steward-shell .table-wrap .actions {
+  min-width: max-content;
+}
+
+.steward-shell .table-wrap button {
+  width: auto;
+  white-space: nowrap;
+}
+
+@keyframes steward-rail-ring {
+  from { transform: rotate(42deg); }
+  to { transform: rotate(402deg); }
+}
+
+@keyframes steward-planet-turn {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes steward-ambient-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-12px, 10px, 0); }
+}
+
+@keyframes steward-stage-ring {
+  from { transform: rotate(39deg); }
+  to { transform: rotate(399deg); }
+}
+
+@media (max-width: 1120px) and (min-width: 761px) {
+  .steward-shell .app-layout { grid-template-columns: 92px minmax(0, 1fr); }
+  .steward-shell .app-rail > .brand { padding: 0; justify-content: center; }
+  .steward-shell .app-rail > .brand > .brand-label,
+  .steward-shell .sidebar button > span,
+  .steward-shell .rail-signature { display: none; }
+  .steward-shell .sidebar { padding-inline: 10px; }
+  body.pico.steward-shell .sidebar button { padding: 0; justify-content: center; border-radius: 13px; }
+  body.pico.steward-shell .sidebar button::before { left: -10px; }
+  .steward-shell .sidebar svg { margin-right: 0; }
+}
+
+@media (max-width: 760px) {
+  .steward-shell .app-layout { display: block; }
+  .steward-shell .app-rail {
+    position: sticky;
+    display: flex;
+    width: 100%;
+    height: 70px;
+    padding: 0 12px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    overflow: visible;
+    border-right: 0;
+    border-bottom: 1px solid var(--ww-line);
+  }
+  .steward-shell .app-rail > .brand { min-height: 70px; padding: 0; font-size: 1.15rem; }
+
+  body.pico.steward-shell .portal-menu-toggle {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    place-items: center;
+  }
+  .steward-shell .portal-menu-icon,
+  .steward-shell .portal-menu-icon::before,
+  .steward-shell .portal-menu-icon::after {
+    display: block;
+    width: 20px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    content: "";
+  }
+  .steward-shell .portal-menu-icon { position: relative; }
+  .steward-shell .portal-menu-icon::before { position: absolute; top: -6px; }
+  .steward-shell .portal-menu-icon::after { position: absolute; top: 6px; }
+  .steward-shell .sidebar {
+    position: absolute;
+    top: 69px;
+    right: 10px;
+    left: 10px;
+    display: none;
+    height: auto;
+    max-height: calc(100dvh - 88px);
+    padding: 12px;
+    overflow-y: auto;
+    border: 1px solid var(--ww-line);
+    border-radius: 0 0 18px 18px;
+    background: var(--ww-elevated-strong);
+    box-shadow: var(--ww-shadow-float);
+  }
+  .steward-shell .sidebar[data-open="true"] { display: flex; }
+  body.pico.steward-shell .sidebar button { min-width: 0; width: 100%; }
+  .steward-shell .rail-signature { display: none; }
+  .steward-shell .app-stage .app-topbar {
+    top: 70px;
+    height: auto;
+    min-height: 70px;
+    padding: 10px 14px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    border-radius: 0;
+  }
+  .steward-shell .topbar-summary { display: none; }
+  .steward-shell .lookup-form { grid-template-columns: 1fr; }
+  body.pico.steward-shell .lookup-form > button { width: 100%; min-width: 0; }
+}
+
+@media (max-width: 520px) {
+  .steward-shell .topbar-context { font-size: 0.82rem; }
+  .steward-shell .app-stage .app-topbar .sign-out { min-width: 0; padding-inline: 0.75rem; font-size: 0.76rem; }
+  .steward-shell .workspace { padding: 20px 12px 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steward-shell .rail-signature::before,
+  .steward-shell .rail-signature::after,
+  .steward-shell .rail-planet-art,
+  .steward-shell .app-stage::before,
+  .steward-shell .app-stage::after { animation: none; }
+  .steward-shell .orbit-moon-motion { display: none; }
+  .steward-shell .orbit-moon-static { display: block; }
+}
+
+/* Release 0.3.62: confirmation actions share an exact control box, baseline,
+   and label treatment across themes. */
+.steward-shell .staff-confirm-panel > .form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+body.pico.steward-shell .staff-confirm-panel > .form-actions > button {
+  display: inline-flex;
+  width: auto;
+  height: 50px;
+  min-height: 50px;
+  margin: 0;
+  padding: 0 1rem;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+body.pico.steward-shell .staff-confirm-panel > .form-actions > button.danger,
+body.pico.steward-shell .staff-confirm-panel > .form-actions > button.danger:focus-visible {
+  border-color: color-mix(in srgb, var(--ww-green) 68%, var(--ww-line));
+  background: linear-gradient(135deg, #08724a, #055b3b);
+  box-shadow: none;
+  color: #ffffff;
+}
+
+body.pico.steward-shell .staff-confirm-panel > .form-actions > button.danger:hover {
+  border-color: color-mix(in srgb, var(--ww-green) 78%, var(--ww-line));
+  background: linear-gradient(135deg, #098354, #066443);
+  box-shadow: 0 9px 22px rgba(0, 125, 72, 0.2);
+  color: #ffffff;
+}
+
+.staff-search-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .85rem 1rem; align-items: end; }
+.staff-search-grid .field { min-width: 0; }
+.staff-search-grid input { width: 100%; }
+.staff-search-grid > button { justify-self: start; }
+@media (max-width: 700px) { .staff-search-grid { grid-template-columns: minmax(0,1fr); } }
+/* An in-flow warning stays reachable beside the active record or editor. */
+.steward-idle-warning{grid-column:1 / -1;border:2px solid var(--ww-amber);margin-block:1rem;overflow-wrap:anywhere}
+.steward-idle-warning [data-idle-countdown]{font-weight:700}
+
+@media (max-width: 760px) {
+  .steward-shell .app-layout { padding-top: 70px; }
+  body.pico.steward-shell .app-rail { position: fixed; z-index: 70; inset: 0 0 auto; }
+  body.pico.steward-shell .sidebar { flex-direction: column; gap: 1rem; overscroll-behavior: contain; }
+  body.pico.steward-shell .sidebar > button { margin: 0; }
+}

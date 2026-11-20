@@ -1,0 +1,20 @@
+---
+import { frontmatter as page } from '../content/status.md';
+import Site from '../layouts/Site.astro';
+import PageHero from '../components/PageHero.astro';
+import ui from '../data/labels.json';
+import s from '../styles/site.module.scss';
+---
+<Site page={page}>
+  <PageHero page={page} />
+  <section class={s['public-section']}><div class:list={[s['public-container'], s['status-layout']]}>
+    <aside class={s['section-index']}><strong>{page.indexLabel}</strong><span>{page.scope}</span></aside>
+    <article class={s['status-card']}>
+      <p class="eyebrow">{page.check}</p>
+      <h2><span class="service-health" data-live-health data-ok={ui.health.ok} data-failed={ui.health.failed}>{ui.health.pending}</span></h2>
+      <p class="muted" data-live-health-detail data-failed={ui.health.detail} data-checked={ui.health.checked} aria-live="polite">{ui.health.requesting}</p>
+      <dl>{page.details.map(({ name, value }) => <><dt>{name}</dt><dd>{value}</dd></>)}</dl>
+      <div class={s['section-actions']}><a class="button secondary" href="/support#contact">{ui.actions.contact}</a><a class="button" href="/app/?action=login" data-login-link>{ui.actions.watchboard}</a></div>
+    </article>
+  </div></section>
+</Site>

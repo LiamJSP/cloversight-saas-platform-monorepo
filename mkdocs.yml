@@ -1,0 +1,72 @@
+site_name: Cloversight engineering
+site_description: Architecture, development, deployment and operations for the Cloversight monitoring platform
+docs_dir: docs
+site_dir: .local/docs-site
+theme:
+  name: material
+  logo: assets/cloversight-mark-dark.svg
+  favicon: assets/cloversight-mark-small-dark.svg
+  palette:
+    scheme: slate
+    primary: custom
+    accent: custom
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - content.code.copy
+extra_css:
+  - assets/docs-brand.css
+nav:
+  - Start: index.md
+  - Getting started:
+      - Develop and test locally: testing.md
+      - First AWS installation: aws-account-bootstrap.md
+      - Business GitHub Actions setup: github-production.md
+  - Architecture:
+      - Overview: architecture.md
+      - Visual atlas: visuals/index.md
+      - Data lifecycle: data-lifecycle.md
+      - Cost model: cost-model.md
+  - Surfaces:
+      - Public site and portals: surfaces.md
+      - Portal design system: customer-portal-design-system.md
+      - Customer UI review: ui-review-2026-10-09.md
+      - Accessibility: accessibility.md
+  - Product systems:
+      - Notifications: notifications.md
+      - Billing: billing-controls.md
+      - Cancellation and recovery: cancellation-0.5.19.md
+      - Security: security.md
+      - Privacy: privacy.md
+      - Secret rotation: secret-rotation.md
+      - Capture isolation: capture-isolation.md
+  - Operations:
+      - Public copy and plan review: public-copy-review-0.5.18.md
+      - Update public pages: upgrade-0.5.18.md
+      - Customer abuse and plans: customer-abuse-review-0.5.17.md
+      - Security and production review: security-production-review-0.5.16.md
+      - Production Stripe sandbox trial: stripe-production-test-0.5.20.md
+      - AWS deployment review: aws-deployment-review-0.5.20.md
+      - Upgrade or recover deployment: upgrade-0.5.20.md
+      - Previous cancellation upgrade: upgrade-0.5.19.md
+      - Prior abuse-control migration: upgrade-0.5.17.md
+      - Deployment reference: deployment.md
+      - 0.5.20 release notes: release-notes-0.5.20.md
+      - Previous cancellation release: release-notes-0.5.19.md
+      - Previous public-copy release: release-notes-0.5.18.md
+      - Previous runtime release: release-notes-0.5.17.md
+      - Previous release and steward setup: release-notes-0.5.15.md
+      - Staging browser access: staging-browser-access.md
+      - Operations: operations.md
+      - Collect AWS audit evidence: cloud-audit-collection.md
+      - Node 24 and dependency review: node24-dependency-upgrade.md
+      - 0.5.15 test review: test-review-0.5.15.md
+      - Release readiness: release-readiness-0.5.15.md
+      - Branding compatibility: branding.md
+      - Known limitations: known-limitations.md
+      - October 10 audit change register: audit-change-register-2026-10-10.md
+  - Generated reference:
+      - Documentation tooling: documentation.md
+      - Source audit: audit-current-state.md
+      - AWS resources: reference/cloudformation.md
+      - HTTP gateway routes: reference/gateway-routes.md

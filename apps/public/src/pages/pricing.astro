@@ -1,0 +1,41 @@
+---
+import { frontmatter as page } from '../content/pricing.md';
+import { frontmatter as usage, Content as Usage } from '../content/pricing-usage.md';
+import { frontmatter as faq, Content as Faq } from '../content/pricing-faq.md';
+import { offers } from '../data/pricing.mjs';
+import ui from '../data/labels.json';
+import s from '../styles/site.module.scss';
+import Site from '../layouts/Site.astro';
+import PageHero from '../components/PageHero.astro';
+const sections = [{ copy: usage, Body: Usage, alt: true }, { copy: faq, Body: Faq, alt: false }];
+---
+<Site page={page}>
+  <PageHero page={page} />
+  <section class={s['public-section']}><div class={s['public-container']}>
+    <div class={s['price-grid']}>{offers.map(plan =>
+      <article class:list={[s['price-card'], plan.id === 'business' && s.featured]}>
+        <div class={s['card-topline']}><span class={s['plan-label']}>{page.positions[plan.id]}</span>
+          {plan.id === 'business' && <span class="badge pink">{ui.pricing.featured}</span>}
+        </div>
+        <h2>{plan.name}</h2><p class={s['plan-cadence']}>{plan.cadence}</p>
+        <p class={s.price}>{plan.price} {!plan.free && <small>{ui.pricing.perMonth}</small>}</p>
+        <ul class={s['list-clean']}>{plan.highlights.map(item => <li>{item}</li>)}</ul>
+        <a class:list={['button', (plan.free || !plan.selfServe) && 'secondary']} href={plan.selfServe ? '/app/?action=signup' : '/support#contact'} data-signup-link={plan.selfServe || undefined}>
+          {plan.free ? ui.signup : plan.selfServe ? ui.pricing.choose + ' ' + plan.name : ui.pricing.sales}
+        </a>
+      </article>)}
+    </div>
+    <p class={s['comparison-hint']}>{ui.pricing.swipe} <span aria-hidden="true">→</span></p>
+    <div class={s['comparison-wrap']} tabindex="0" role="region" aria-label={ui.pricing.table}>
+      <table class={s['comparison-table']}><thead><tr><th scope="col">{ui.pricing.plan}</th>{offers.map(p => <th scope="col">{p.name}{!p.selfServe && '†'}</th>)}</tr></thead>
+        <tbody>{ui.pricing.rows.map(({ key, label }) => <tr><th scope="row">{label}</th>{offers.map(p => <td>{p.limits[key]}</td>)}</tr>)}</tbody>
+      </table>
+    </div>
+    {page.notes.map(note => <p class={s.microcopy}>{note}</p>)}
+  </div></section>
+  {sections.map(({ copy, Body, alt }) =>
+    <section class:list={[s['public-section'], alt && s.alt]}><div class:list={[s['public-container'], s['faq-grid']]}>
+      <div><p class="eyebrow">{copy.eyebrow}</p><h2>{copy.heading}</h2></div>
+      <div class={s.prose}><Body /></div>
+    </div></section>)}
+</Site>

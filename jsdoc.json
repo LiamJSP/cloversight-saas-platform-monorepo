@@ -1,0 +1,16 @@
+{
+  "source": {
+    "include": ["src", "apps/public", "apps/customer", "apps/steward", "apps/shared", "extensions/chrome-target-picker"],
+    "includePattern": "\\.(mjs|js)$",
+    "excludePattern": "(/vendor/|/node_modules/)"
+  },
+  "opts": {
+    "destination": "docs/reference/jsdoc",
+    "recurse": true,
+    "readme": "docs/documentation.md"
+  },
+  "plugins": ["plugins/markdown"],
+  "tags": { "allowUnknownTags": true },
+  "templates": { "default": { "outputSourceFiles": true } }
+}
+

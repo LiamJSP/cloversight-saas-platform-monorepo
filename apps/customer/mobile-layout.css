@@ -1,0 +1,260 @@
+/* Mobile form and archive ownership. Keep this after the shared theme and
+   customer component styles so their desktop control geometry stays intact. */
+body.pico #watcher-form > .modal-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.pico #watcher-form #offline-note {
+  margin: 0;
+}
+
+body.pico #watcher-form .watcher-recovery {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--ww-line);
+  border-radius: 12px;
+  background: var(--ww-inset);
+}
+
+body.pico #watcher-form .watcher-recovery details,
+body.pico #watcher-form .watcher-recovery p,
+body.pico #watcher-form .watcher-recovery button {
+  margin-bottom: 0;
+}
+
+body.pico #watcher-form .watcher-recovery summary {
+  font-weight: 750;
+}
+
+body.pico #watcher-form .watcher-recovery p {
+  margin-top: 0.7rem;
+  font-size: 0.85rem;
+}
+
+body.pico #watcher-form .watcher-recovery button {
+  margin-top: 0.8rem;
+}
+
+/* Archive stacks are clickable cards; they use their own surfaces rather than
+   inheriting the shared primary/secondary button backgrounds in dark mode. */
+:root body.pico button.archive-stack.secondary,
+:root body.pico button.archive-stack.secondary:is(:hover, :focus-visible, :active) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ww-ink);
+  transform: none;
+}
+
+:root body.pico button.archive-stack.secondary::after {
+  content: none;
+}
+
+body.pico .archive-card-meta {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+body.pico .archive-card-meta small {
+  max-width: 100%;
+  min-width: 0;
+}
+
+body.pico .archive-card-meta .incident-badge {
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  body.pico .archive-stack-grid {
+    min-width: 0;
+    gap: 1.25rem;
+  }
+
+  body.pico .archive-card-hand {
+    --archive-preview-height: clamp(180px, 58vw, 250px);
+    height: calc(var(--archive-preview-height) + (var(--archive-count) - 1) * 10px + 14px);
+  }
+
+  body.pico .archive-result-card {
+    width: 100%;
+    height: var(--archive-preview-height);
+    transform: translateY(calc(var(--archive-i) * 10px));
+  }
+
+  body.pico .archive-stack:is(:hover, :focus-visible) .archive-result-card {
+    transform: translateY(calc(var(--archive-i) * 10px));
+  }
+
+  body.pico .archive-stack-caption {
+    min-height: 74px;
+    padding: 0.8rem;
+    gap: 0.6rem;
+  }
+
+  body.pico .archive-stack-caption strong {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: 0.92rem;
+  }
+
+  body.pico .archive-stack-caption small {
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  body.pico .gallery {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  body.pico .gallery-check {
+    min-width: 0;
+    padding: 1rem;
+  }
+
+  body.pico .gallery-check .gallery-card-art {
+    height: auto;
+    min-height: 96px;
+    padding: 0.85rem;
+  }
+
+  body.pico .gallery-check .gallery-card-heading {
+    margin-top: 0.85rem;
+    gap: 0.5rem;
+  }
+
+  body.pico .gallery-check .gallery-card-heading h3 {
+    font-size: 1.15rem;
+    line-height: 1.3;
+  }
+
+  body.pico .gallery-check .gallery-captured-at {
+    margin: 0.4rem 0 1rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  body.pico .gallery-check .gallery-change-label {
+    margin: 0;
+    font-size: 0.68rem;
+    line-height: 1.4;
+  }
+
+  body.pico .gallery-check .gallery-change-values {
+    margin: 0.5rem 0 1rem;
+  }
+
+  body.pico .gallery-check .gallery-change-values strong {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  body.pico .gallery-check .review-results {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Technical disclosures remain comfortable touch targets in Advanced mode.
+     Watcher Actions already owns its larger native summary control. */
+  body.pico .workspace details:not(.watcher-actions) > summary,
+  body.pico .modal-panel details:not(.watcher-actions) > summary {
+    min-height: 44px;
+    padding-block: 12px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  body.pico .transaction-tools input {
+    min-width: 0;
+    min-height: 44px;
+    font-size: 1rem;
+  }
+
+  body.pico #watcher-form {
+    padding: 0;
+  }
+
+  body.pico #watcher-form > .modal-header {
+    padding: max(12px, env(safe-area-inset-top)) 16px 12px;
+    gap: 12px;
+  }
+
+  body.pico #watcher-form .modal-header .eyebrow {
+    margin-bottom: 0.35rem;
+    font-size: 0.66rem;
+  }
+
+  body.pico #watcher-form .modal-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    line-height: 1.2;
+  }
+
+  body.pico #watcher-form #watcher-editor-intro {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* This single-page form has no step navigation. Its decorative desktop
+     progress bar must not consume the phone's editing viewport. */
+  body.pico #watcher-form > .modal-progress {
+    display: none;
+  }
+
+  body.pico #watcher-form > .modal-form-body {
+    min-width: 0;
+    min-height: 0;
+    padding: 16px 16px 24px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ww-copy-soft) transparent;
+  }
+
+  body.pico #watcher-form > .modal-actions {
+    gap: 8px;
+    padding: 10px 16px max(10px, env(safe-area-inset-bottom));
+  }
+
+  body.pico #watcher-form > .modal-actions > button {
+    min-height: 44px;
+    padding: 0.6rem 0.45rem;
+    font-size: 0.82rem;
+  }
+
+  body.pico #watcher-form > .modal-actions #draft-status {
+    grid-column: 1 / -1;
+    padding-top: 0;
+    font-size: 0.65rem;
+    line-height: 1.4;
+    text-align: left;
+  }
+
+  body.pico #watcher-form .watcher-recovery button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* A fixed phone rail keeps the open/close control with its scrolling menu. */
+@media (max-width: 900px) {
+  #portal-shell { padding-top: calc(64px + env(safe-area-inset-top)); }
+  body.pico .app-rail { position: fixed; z-index: 70; inset: 0 0 auto; width: 100%; }
+  body.pico .app-rail #portal-navigation {
+    gap: 1rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  body.pico .app-rail .sidebar > button { margin: 0; }
+}

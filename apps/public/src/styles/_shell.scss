@@ -1,0 +1,255 @@
+@use 'breakpoints' as bp;
+
+/* CLOVERSIGHT public-site composition. Shared tokens and controls live in theme.css. */
+
+html {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  scroll-padding-top: 86px;
+}
+
+body:global(.public-site) {
+  color-scheme: inherit;
+  width: 100%;
+  max-width: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(207, 44, 130, 0.1), transparent 30rem),
+    linear-gradient(145deg, #fff 0%, #fcf8fa 52%, #fffafb 100%);
+}
+
+/* 0.3.43 public surfaces share the portal's dark-first visual system. */
+:root[data-theme="dark"] body:global(.public-site) {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(255, 120, 189, 0.12), transparent 30rem),
+    radial-gradient(circle at 8% 82%, rgba(84, 219, 160, 0.07), transparent 34rem),
+    linear-gradient(145deg, var(--ww-canvas) 0%, #15111b 52%, #100e17 100%);
+}
+
+:root[data-theme="dark"] :global(.public-site) > :global(.visually-hidden):focus,
+:root[data-theme="dark"] :global(.public-header),
+:root[data-theme="dark"] .monitor-card,
+:root[data-theme="dark"] :is(.feature-card, .security-card, .support-card, .price-card, .status-card),
+:root[data-theme="dark"] .workflow-step,
+:root[data-theme="dark"] .comparison-wrap,
+:root[data-theme="dark"] .section-index,
+:root[data-theme="dark"] .payment-method,
+:root[data-theme="dark"] .error-card {
+  border-color: var(--ww-line);
+  background: var(--ww-elevated);
+  color: var(--ww-ink);
+}
+
+:root[data-theme="dark"] :global(.public-header) {
+  background: rgba(16, 14, 23, 0.86);
+  box-shadow: 0 10px 34px rgba(0,0,0,.24);
+}
+
+:root[data-theme="dark"] :global(.public-nav-links) :global(.public-menu-items) > a:not(:global(.button)),
+:root[data-theme="dark"] .prose :is(p, li) { color: var(--ww-copy); }
+
+:root[data-theme="dark"] .public-hero::before {
+  border-color: rgba(255, 120, 189, 0.13);
+  background: linear-gradient(150deg, rgba(255, 120, 189, 0.09), rgba(84, 219, 160, 0.025));
+  box-shadow: 0 0 0 84px rgba(255,255,255,.015), 0 0 0 85px rgba(255,120,189,.06);
+}
+
+:root[data-theme="dark"] .public-section.alt,
+:root[data-theme="dark"] .public-footer {
+  border-color: var(--ww-line);
+  background: rgba(18, 15, 24, 0.72);
+}
+
+:root[data-theme="dark"] .page-hero {
+  border-color: var(--ww-line);
+  background: linear-gradient(135deg, rgba(35,29,43,.98), rgba(29,20,32,.86));
+}
+
+:root[data-theme="dark"] .page-hero::after {
+  background: rgba(255,120,189,.035);
+  box-shadow: 0 0 0 70px rgba(255,255,255,.012), 0 0 0 71px rgba(255,120,189,.07);
+}
+
+:root[data-theme="dark"] .comparison-table :is(th, td):first-child { background: var(--ww-surface-solid); }
+
+:root[data-theme="dark"] .support-primary,
+:root[data-theme="dark"] .public-cta,
+:root[data-theme="dark"] .payments-section {
+  border-color: var(--ww-line);
+  background:
+    radial-gradient(circle at 86% 18%, rgba(255,120,189,.12), transparent 15rem),
+    linear-gradient(135deg, var(--ww-elevated-strong), rgba(20,55,41,.34));
+}
+
+:root[data-theme="dark"] .payment-method { box-shadow: var(--ww-shadow-sm); }
+:root[data-theme="dark"] :is(.callout, .prose blockquote) { border-color: color-mix(in srgb, var(--ww-pink) 30%, var(--ww-line)); background: var(--ww-pink-soft); color: var(--ww-plum-deep); }
+
+@media (max-width: bp.$menu) {
+  :root[data-theme="dark"] :global(.public-nav-links) {
+    background:
+      radial-gradient(circle at 88% 8%, rgba(255,120,189,.18), transparent 25rem),
+      radial-gradient(circle at 12% 92%, rgba(84,219,160,.1), transparent 24rem),
+      #100e17;
+  }
+}
+
+:global(.public-site) > :global(.visually-hidden):focus {
+  position: fixed !important;
+  z-index: 100;
+  top: 10px;
+  left: 10px;
+  width: auto !important;
+  height: auto !important;
+  padding: 0.7rem 0.9rem !important;
+  overflow: visible !important;
+  clip: auto !important;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ww-plum);
+  box-shadow: var(--ww-shadow-float);
+}
+
+.public-container {
+  width: min(1180px, calc(100% - 40px));
+  margin-inline: auto;
+}
+
+:global(.public-header) {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  border-bottom: 1px solid rgba(78, 51, 71, 0.1);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 8px 30px rgba(69, 27, 55, 0.035);
+  backdrop-filter: blur(20px) saturate(145%);
+}
+
+:global(.public-nav) {
+  position: relative;
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+:global(.brand) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.68rem;
+  color: var(--ww-ink);
+  font-size: 1.32rem;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  text-decoration: none;
+}
+
+:global(.brand):hover {
+  color: var(--ww-plum);
+}
+
+
+:global(.public-nav-links) {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+:global(.public-nav-links) :global(.public-menu-items) > a:not(:global(.button)) {
+  position: relative;
+  padding: 0.72rem 0.82rem;
+  border-radius: 10px;
+  color: #4f4c60;
+  font-size: 0.9rem;
+  font-weight: 680;
+  text-decoration: none;
+}
+
+:global(.public-nav-links) :global(.public-menu-items) > a:not(:global(.button)):hover,
+:global(.public-nav-links) :global(.public-menu-items) > a:not(:global(.button))[aria-current="page"] {
+  background: var(--ww-pink-soft);
+  color: var(--ww-plum);
+}
+
+:global(.public-nav-links) :global(.public-menu-items) > a:not(:global(.button))[aria-current="page"]::after {
+  position: absolute;
+  right: 0.82rem;
+  bottom: 0.38rem;
+  left: 0.82rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--ww-pink);
+  content: "";
+}
+
+body:global(.pico) :global(.public-nav-links) :global(.button) {
+  min-height: 43px;
+  padding: 0.64rem 0.92rem;
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.public-menu-toggle {
+  display: none;
+  width: 46px;
+  min-width: 46px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  align-items: center;
+  align-self: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+:global(.public-menu-close) {
+  display: none;
+}
+
+.public-mobile-cta {
+  display: none;
+}
+
+.menu-icon,
+.menu-icon::before,
+.menu-icon::after {
+  display: block;
+  width: 19px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  content: "";
+}
+
+.menu-icon {
+  position: relative;
+  flex: 0 0 19px;
+}
+
+.menu-icon::before {
+  position: absolute;
+  top: -6px;
+}
+
+.menu-icon::after {
+  position: absolute;
+  top: 6px;
+}
+
+.public-menu-toggle[aria-expanded="true"] .menu-icon {
+  background: transparent;
+}
+
+.public-menu-toggle[aria-expanded="true"] .menu-icon::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.public-menu-toggle[aria-expanded="true"] .menu-icon::after {
+  top: 0;
+  transform: rotate(-45deg);
+}

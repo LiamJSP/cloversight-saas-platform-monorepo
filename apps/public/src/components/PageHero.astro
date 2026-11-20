@@ -1,0 +1,10 @@
+---
+import s from '../styles/site.module.scss';
+const { page } = Astro.props;
+---
+<section class={s['page-hero']}><div class={s['public-container']}>
+  <p class="eyebrow">{page.eyebrow}</p>
+  <h1>{page.heading}</h1>
+  <p class={s.lead}>{page.lead}</p>
+  {page.updated && <p class={s.microcopy}>{page.updated}</p>}
+</div></section>

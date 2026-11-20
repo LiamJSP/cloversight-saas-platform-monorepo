@@ -1,0 +1,64 @@
+---
+import siteScript from '../../../shared/site.js?url';
+import Brand from '../components/Brand.astro';
+import ui from '../data/labels.json';
+import s from '../styles/site.module.scss';
+const { page, home = false, error = false } = Astro.props;
+const footerGroups = [
+  { heading: ui.footer.product, links: ui.footer.productLinks },
+  { heading: ui.footer.company, links: ui.footer.companyLinks, copyright: true },
+];
+const indexable = (process.env.CLOVERSIGHT_SITE_STAGE || 'prod') === 'prod';
+const canonical = new URL(home ? '/' : Astro.url.pathname.replace(/\.html$/, '') || '/', Astro.site);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#100e17" />
+    <title>{page.title}</title>
+    {page.description && <meta name="description" content={page.description} />}
+    {(error || !indexable) && <meta name="robots" content="noindex" />}
+    {!error && <link rel="canonical" href={canonical} />}
+    {['light', 'dark'].map(theme => <link rel="icon" href={`/favicon${theme === 'dark' ? '-dark' : ''}.svg?v=0.5.15`} media={`(prefers-color-scheme: ${theme})`} />)}
+    <script is:inline src="/static/theme.js?v=0.5.15"></script>
+    <link rel="stylesheet" href="/static/pico.css?v=0.5.15" />
+    <link rel="stylesheet" href="/static/theme.css?v=0.5.15" />
+    {home && <link rel="stylesheet" href="/app-static/regional-globe/globe.css?v=0.5.15" />}
+    <link rel="stylesheet" href="/static/brand.css?v=0.5.15" />
+  </head>
+  <body class="pico public-site">
+    {!error && <>
+      <a class="visually-hidden" href="#main">{ui.skip}</a>
+      <header class="public-header">
+        <div class:list={[s['public-container'], 'public-nav']}>
+          <Brand />
+          <button class:list={[s['public-menu-toggle'], 'secondary']} type="button" aria-expanded="false" aria-controls="public-navigation" aria-label={ui.openMenu} data-open-label={ui.openMenu} data-close-label={ui.closeMenu} data-public-menu><span class={s['menu-icon']} aria-hidden="true"></span></button>
+          <a class:list={['button', s['public-mobile-cta']]} href="/app/?action=signup" data-signup-link>{ui.signup}</a>
+          <nav id="public-navigation" class="public-nav-links" aria-label={ui.primary} data-public-navigation data-open="false">
+            {ui.nav.map(({ href, label }) => <a href={href} aria-current={canonical.pathname === href ? 'page' : undefined}>{label}</a>)}
+            <a class="button secondary" href="/app/?action=login" data-login-link>{ui.login}</a>
+            <a class="button" href="/app/?action=signup" data-signup-link>{ui.signup}</a>
+          </nav>
+        </div>
+      </header>
+    </>}
+    <main id="main" class={error ? s['error-page'] : undefined}><slot /></main>
+    {!error && <>
+      <footer class={s['public-footer']}>
+        <div class:list={[s['public-container'], s['footer-grid']]}>
+          <div><Brand /><p>{ui.footer.description}</p></div>
+          {footerGroups.map(group =>
+            <div class={s['footer-links']}><strong>{group.heading}</strong>
+              {group.links.map(({ href, label }) => <a href={href}>{label}</a>)}
+              {group.copyright && <p>© <span data-year></span> {ui.footer.attribution}</p>}
+            </div>)}
+        </div>
+      </footer>
+      <script is:inline src={siteScript} defer></script>
+    </>}
+    {home && <script is:inline type="module" src="/hero-globe.js?v=0.5.21"></script>}
+  </body>
+</html>

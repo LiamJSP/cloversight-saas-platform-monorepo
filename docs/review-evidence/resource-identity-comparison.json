@@ -1,0 +1,34 @@
+[
+  {
+    "template": "infra/cloudformation/webwatch.yaml",
+    "stateful_resource_definitions_unchanged": 22,
+    "resources_before": 174,
+    "resources_after": 178,
+    "added": [
+      "CaptureResultQueueAgeAlarm",
+      "CheckQueueAgeAlarm",
+      "QueueTransportPolicy",
+      "SnapshotBucketPolicy"
+    ],
+    "removed": []
+  },
+  {
+    "template": "infra/cloudformation/regional-capture.yaml",
+    "stateful_resource_definitions_unchanged": 4,
+    "resources_before": 15,
+    "resources_after": 17,
+    "added": [
+      "CaptureBucketPolicy",
+      "QueueTransportPolicy"
+    ],
+    "removed": []
+  },
+  {
+    "template": "infra/bootstrap/access.yaml",
+    "stateful_resource_definitions_unchanged": 1,
+    "resources_before": 5,
+    "resources_after": 5,
+    "added": [],
+    "removed": []
+  }
+]

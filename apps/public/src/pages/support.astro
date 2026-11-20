@@ -1,0 +1,20 @@
+---
+import { frontmatter as page, Content } from '../content/support.md';
+import Site from '../layouts/Site.astro';
+import PageHero from '../components/PageHero.astro';
+import s from '../styles/site.module.scss';
+---
+<Site page={page}>
+  <PageHero page={page} />
+  <section class={s['public-section']}><div class={s['public-container']}>
+    <div id="contact" class={s['support-primary']}>
+      <div><h2>{page.contact}</h2><Content /></div>
+      <div class={s['section-actions']}>{page.actions.map(({ href, label }, i) => <a class:list={['button', i && 'secondary']} href={href}>{label}</a>)}</div>
+    </div>
+    <div class={s['support-grid']}>{page.cards.map(card => <article class={s['support-card']}>
+      <span class={s['feature-icon']}>{card.icon}</span><h3>{card.title}</h3><p>{card.description}</p>
+      <a class="button secondary" href={card.link.href}>{card.link.label}</a>
+    </article>)}</div>
+    <div class={s.callout}><strong>{page.followup}</strong> {page.followupBody}</div>
+  </div></section>
+</Site>

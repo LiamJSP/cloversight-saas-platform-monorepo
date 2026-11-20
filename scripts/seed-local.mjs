@@ -1,0 +1,4 @@
+import fs from 'node:fs/promises';import path from 'node:path';import { loadEnvFile } from '../src/env.mjs';import { loadConfig } from '../src/config.mjs';import { demoState } from '../src/seed.mjs';
+loadEnvFile();const config=loadConfig();const force=process.argv.includes('--force');
+try{await fs.access(config.statePath);if(!force)throw new Error(`${config.statePath} exists. Re-run with --force to replace local state.`)}catch(error){if(error.code!=='ENOENT')throw error}
+await fs.mkdir(path.dirname(config.statePath),{recursive:true});await fs.writeFile(config.statePath,`${JSON.stringify(demoState(),null,2)}\n`,{mode:0o600});await fs.rm(config.assetPath,{recursive:true,force:true});await fs.rm(config.outboxPath,{recursive:true,force:true});await Promise.all([fs.mkdir(config.assetPath,{recursive:true}),fs.mkdir(config.outboxPath,{recursive:true})]);console.log(`Seeded ${config.statePath}`);

@@ -1,0 +1,2 @@
+# Copy to .local/staging-ip-allowlist.txt and replace the documentation address.
+192.0.2.1/32

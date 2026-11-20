@@ -1,0 +1,5 @@
+// Export one CSS Module mapping for the static site. Partial order preserves the theme cascade.
+@use 'shell';
+@use 'home';
+@use 'pages';
+@use 'responsive';

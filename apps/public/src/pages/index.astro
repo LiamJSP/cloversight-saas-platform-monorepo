@@ -1,0 +1,59 @@
+---
+import { frontmatter as page } from '../content/index.md';
+import Site from '../layouts/Site.astro';
+import ui from '../data/labels.json';
+import s from '../styles/site.module.scss';
+---
+<Site page={page} home>
+<section class={s['public-hero']}>
+      <div class:list={['ww-regional', s['hero-globe']]} aria-label={ui.globe.label} data-hero-globe data-marker={ui.globe.marker} data-fallback={ui.globe.fallback}>
+        <div class="rg-stage"><div class="rg-spills" aria-hidden="true"></div><div class="rg-host" role="group" aria-label={ui.globe.instructions} tabindex="0"></div><div class="rg-pin-label" aria-hidden="true"></div><div class="rg-fallback" hidden aria-hidden="true"></div></div>
+        <p class={s['hero-globe-caption']}>{ui.globe.caption}</p><span class="visually-hidden" role="status" aria-live="polite" data-hero-region></span>
+      </div>
+      <div class:list={[s['public-container'], s['hero-grid']]}>
+        <div class={s['hero-copy']}>
+          <p class="eyebrow">{page.eyebrow}</p>
+          <h1>{page.heading} <em>{page.emphasis}</em></h1>
+          <p class={s['lead']}>{page.lead}</p>
+          <div class={s['hero-actions']}><a class="button" href="/app/?action=signup" data-signup-link>{page.signup}</a><a class:list={['button', 'secondary']} href="/app/?action=login" data-login-link>{ui.login}</a></div>
+          <p class={s['microcopy']}>{page.trial}</p>
+        </div>
+        <aside class={s['monitor-card']} aria-label={page.example.label}>
+          <div class={s['monitor-card-head']}><p class="eyebrow">{page.example.title}</p><span class={s['live-pill']}>{page.example.status}</span></div>
+ {page.example.rows.map(row => <div class={s['status-row']}><span class:list={[s['status-dot'], row.changed && s.changed]}></span><div><strong>{row.device}</strong><span class="muted">{row.description}</span></div><span class:list={['badge', row.changed ? 'pink' : 'green']}>{row.result}</span></div>)}
+</aside>
+      </div>
+    </section>
+
+
+<section class:list={[s['public-section'], s['alt']]}>
+      <div class={s['public-container']}>
+        <div class={s['section-heading']}><div><p class="eyebrow">{page.features.eyebrow}</p><h2>{page.features.heading}</h2></div><p>{page.features.description}</p></div>
+        <div class={s['feature-grid']}>{page.features.cards.map(card => <article class={s['feature-card']}><span class={s['feature-icon']}>{card.icon}</span><h3>{card.title}</h3><p>{card.description}</p></article>)}</div>
+      </div>
+    </section>
+
+
+<section class={s['public-section']}>
+      <div class={s['public-container']}>
+        <div class={s['section-heading']}><div><p class="eyebrow">{page.workflow.eyebrow}</p><h2>{page.workflow.heading}</h2></div><p>{page.workflow.description}</p></div>
+        <div class={s['workflow']}>{page.workflow.cards.map(card => <article class={s['workflow-step']}><span class={s['step-number']}>{card.icon}</span><h3>{card.title}</h3><p>{card.description}</p></article>)}</div>
+      </div>
+    </section>
+
+
+<section class:list={[s['public-section'], s['payments-section']]} aria-labelledby="payments-title">
+      <div class:list={[s['public-container'], s['payments-layout']]}>
+        <div class={s['payments-copy']}><p class="eyebrow">{page.payments.eyebrow}</p><h2 id="payments-title">{page.payments.heading}</h2><p>{page.payments.description}</p></div>
+        <ul class={s['payment-methods']} aria-label={ui.paymentMethods.label}>
+          <li class:list={[s['payment-method'], s['stripe-mark']]} aria-label={ui.paymentMethods.providers[0].name}><svg viewbox="0 0 44 44" aria-hidden="true"><rect x="2" y="2" width="40" height="40" rx="12"></rect><path d="M28.5 14.8c-2-1-4-1.5-6.1-1.5-4.7 0-7.8 2.5-7.8 6.2 0 5.8 8 4.8 8 7.2 0 .9-.8 1.4-2.3 1.4-2.1 0-4.7-.9-6.8-2.2v5.8c2.3 1 4.7 1.5 6.8 1.5 4.8 0 8.1-2.4 8.1-6.2 0-6.2-8.1-5.1-8.1-7.3 0-.8.7-1.2 2-1.2 1.9 0 4.2.8 6.2 1.9z"></path></svg><span>{ui.paymentMethods.providers[0].text}</span></li>
+          <li class:list={[s['payment-method'], s['card-mark']]} aria-label={ui.paymentMethods.providers[1].name}><svg viewbox="0 0 44 44" aria-hidden="true"><rect x="3" y="8" width="38" height="28" rx="6"></rect><path d="M3 17h38M10 28h9"></path></svg><span>{ui.paymentMethods.providers[1].text}</span></li>
+        </ul>
+      </div>
+    </section>
+
+
+<section class:list={[s['public-section'], s['alt']]}>
+      <div class:list={[s['public-container'], s['public-cta']]}><div><p class="eyebrow">{page.cta.eyebrow}</p><h2>{page.cta.heading}</h2><p>{page.cta.description}</p></div><div class={s['section-actions']}><a class="button" href="/app/?action=signup" data-signup-link>{ui.actions.create}</a><a class:list={['button', 'secondary']} href="/pricing">{ui.actions.compare}</a></div></div>
+    </section>
+</Site>

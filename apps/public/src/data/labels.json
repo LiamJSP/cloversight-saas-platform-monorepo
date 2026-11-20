@@ -1,0 +1,196 @@
+{
+  "site": "CLOVERSIGHT",
+  "home": "CLOVERSIGHT home",
+  "skip": "Skip to main content",
+  "primary": "Primary",
+  "openMenu": "Open navigation",
+  "closeMenu": "Close navigation",
+  "login": "Log in",
+  "signup": "Start free",
+  "nav": [
+    {
+      "label": "Pricing",
+      "href": "/pricing"
+    },
+    {
+      "label": "Security",
+      "href": "/security"
+    },
+    {
+      "label": "Support",
+      "href": "/support"
+    },
+    {
+      "label": "Status",
+      "href": "/status"
+    }
+  ],
+  "footer": {
+    "description": "Know what changed, where it changed, and who responded. CLOVERSIGHT is operated by Red Clover Software.",
+    "product": "Product",
+    "company": "Company",
+    "attribution": "Red Clover Software",
+    "productLinks": [
+      {
+        "label": "Pricing",
+        "href": "/pricing"
+      },
+      {
+        "label": "Security",
+        "href": "/security"
+      },
+      {
+        "label": "System status",
+        "href": "/status"
+      },
+      {
+        "label": "Support",
+        "href": "/support"
+      }
+    ],
+    "companyLinks": [
+      {
+        "label": "Privacy",
+        "href": "/privacy"
+      },
+      {
+        "label": "Terms",
+        "href": "/terms"
+      }
+    ]
+  },
+  "globe": {
+    "label": "Interactive illustration of AWS Region markers; these are examples, not live status",
+    "instructions": "Illustrative region globe. Use left and right arrow keys to explore, or drag with a pointer.",
+    "caption": "Example regions · illustrative status",
+    "fallback": "The globe illustration is unavailable.",
+    "marker": "example marker"
+  },
+  "health": {
+    "pending": "Checking public health endpoint",
+    "requesting": "Requesting the current health endpoint…",
+    "ok": "Public health endpoint responded",
+    "failed": "Public health check unsuccessful",
+    "detail": "This browser could not confirm a successful response from the public health endpoint. This alone does not identify a service outage. Contact support if this persists.",
+    "checked": "Checked"
+  },
+  "pricing": {
+    "rows": [
+      {
+        "key": "price",
+        "label": "Monthly price (USD)"
+      },
+      {
+        "key": "credits",
+        "label": "Capture credits/month"
+      },
+      {
+        "key": "watchers",
+        "label": "Watcher limit"
+      },
+      {
+        "key": "cadence",
+        "label": "Fastest cadence"
+      },
+      {
+        "key": "regions",
+        "label": "Regional checks"
+      },
+      {
+        "key": "core",
+        "label": "Outage, phrase, and text checks"
+      },
+      {
+        "key": "visual",
+        "label": "Visual change detection"
+      },
+      {
+        "key": "users",
+        "label": "Users"
+      },
+      {
+        "key": "tiers",
+        "label": "Escalation tiers"
+      },
+      {
+        "key": "recipients",
+        "label": "Recipients / watcher"
+      },
+      {
+        "key": "email",
+        "label": "Email attempts/day"
+      },
+      {
+        "key": "sms",
+        "label": "Optional SMS attempts/day"
+      },
+      {
+        "key": "history",
+        "label": "History"
+      },
+      {
+        "key": "reports",
+        "label": "PDF report requests"
+      },
+      {
+        "key": "support",
+        "label": "Email support"
+      }
+    ],
+    "plan": "Plan",
+    "swipe": "Swipe to compare every plan",
+    "table": "Scrollable plan comparison",
+    "perMonth": "/ month",
+    "choose": "Choose",
+    "sales": "Ask about Scale availability",
+    "featured": "Main commercial plan",
+    "included": "Included",
+    "excluded": "Not included",
+    "none": "None",
+    "trial": "30-day trial only",
+    "supportLevels": {
+      "free": "Community",
+      "essentials": "Standard",
+      "professional": "Standard",
+      "team": "Priority",
+      "business": "Priority",
+      "scale": "Priority"
+    },
+    "weekly": "Weekly",
+    "hourly": "Hourly",
+    "indefinite": "Indefinite†",
+    "storageAgreement": "storage by agreement†",
+    "allWatchers": "all watchers",
+    "everyWatcher": "every watcher",
+    "trialCadence": "{cadence} after the 30-day trial",
+    "paidCadence": "As often as {cadence}",
+    "rate": "every {cadence}",
+    "monthCredits": "{credits} capture credits / month",
+    "dayEmail": "{email} email attempts/day",
+    "daySms": "{sms} optional SMS attempts/day",
+    "noPdf": "no PDF reports",
+    "retention": "{time} history",
+    "rolling": "rolling",
+    "regionOn": "{regions} on {watchers}"
+  },
+  "actions": {
+    "create": "Create your watcher",
+    "compare": "Compare plans",
+    "watchboard": "Open watchboard",
+    "contact": "Contact support",
+    "return": "Return home"
+  },
+  "paymentMethods": {
+    "label": "Payment methods available through Stripe Checkout",
+    "providers": [
+      {
+        "name": "Stripe",
+        "text": "Stripe"
+      },
+      {
+        "name": "Debit and credit cards",
+        "text": "Debit & credit cards"
+      }
+    ]
+  }
+}
