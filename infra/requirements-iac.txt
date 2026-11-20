@@ -1,0 +1,3 @@
+# AWS-maintained schema validator, also pinned in the CI workflow.
+cfn-lint==1.60.1
+PyYAML==6.0.3

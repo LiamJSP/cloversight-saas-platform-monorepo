@@ -1,0 +1,8 @@
+# 0.5.6 — regional permission audit and results globe
+
+- Regional capture template from 0.5.5 already includes a bucket-level `s3:ListBucket` grant. The reported us-east-2 Lambda role lacking it indicates a deployment mismatch; deploy all configured regional stacks. The read-only post-deploy audit now inspects each live role's inline policy against its own regional capture bucket, so this failure is detected before running checks.
+- The results modal now presents configured regions on a rotatable 3D globe, with accessible selector and live status/details when WebGL is unavailable. Clicking a pin or choosing a region displays that region's HTTP/content status, timing, error, and its own retained screenshot/diff panel.
+- Snapshot responses now sign screenshot and overlay assets in every region, preserving each regional bucket and AWS Region; expired links refresh with the same region scope.
+- The supplied renderer's source, self-contained browser bundle, third-party licenses and exact browser dependency versions are included. The web deployment rebuilds the renderer using esbuild before uploading all new static assets.
+
+This release changes the primary runtime source and the root package contract. Build a new worker image from this checkout, put its digest-based `WORKER_IMAGE_URI` in `.env`, deploy the primary stack, then deploy the regional stacks and web application. The old 0.5.5 worker-image contract cannot be reused. Existing historical results remain unchanged; run a new check after repairing the regional role. No application build or runtime tests were executed during authorship, per the requested handoff.

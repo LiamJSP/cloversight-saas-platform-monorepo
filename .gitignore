@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.local/
+.env*
+!.env.example
+.npmrc
+*.zip
+.DS_Store
+coverage/
+cdk.out/
+.aws-sam/
+.local-browsers/
+docs/reference/jsdoc/

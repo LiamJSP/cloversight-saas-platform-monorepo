@@ -1,0 +1,70 @@
+name: Cloversight AWS production release
+on:
+  workflow_call:
+    inputs:
+      operation:
+        required: true
+        type: string
+permissions: {}
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 115
+    environment: production
+    concurrency:
+      group: cloversight-aws-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r infra/requirements-iac.txt && npm ci --ignore-scripts --no-audit --no-fund
+      - name: Check verified revision against current main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          current="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)"
+          if [[ "$current" != "$GITHUB_SHA" ]]; then
+            echo 'A newer commit reached main. Run the release for that commit.' >&2
+            exit 1
+          fi
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::807434077491:role/cloversight-github-production
+          allowed-account-ids: '807434077491'
+          role-session-name: gh-${{ github.run_id }}-${{ github.run_attempt }}
+          role-duration-seconds: 7200
+          # Inspection is also restricted to reads at the AWS session level.
+          inline-session-policy: ${{ inputs.operation == 'inspect' && '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["sts:GetCallerIdentity","cloudformation:Describe*","cloudformation:List*","ecr:Describe*","acm:DescribeCertificate","route53:GetHostedZone","route53:ListResourceRecordSets","cognito-idp:DescribeUserPoolDomain","cloudfront:List*","ses:DescribeReceiptRuleSet","ses:GetIdentityVerificationAttributes","servicequotas:ListServiceQuotas","ce:ListCostAllocationTags","sns:ListSubscriptionsByTopic","lambda:Get*"],"Resource":"*"}]}' || '' }}
+      - name: Inspect or release existing production installation
+        env:
+          OPERATION: ${{ inputs.operation }}
+        run: node scripts/github-production.mjs "$OPERATION"
+      - name: Keep release evidence
+        if: ${{ !cancelled() && inputs.operation == 'deploy' }}
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: production-release-${{ github.sha }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: ignore
+          include-hidden-files: true
+          path: |
+            dist/lambda/runtime.release-evidence.json
+            dist/lambda/runtime.sbom.cdx.json
+            .local/worker-image.env
+            .local/release-evidence/*/browser-worker.release-evidence.json
+            .local/release-evidence/*/browser-worker.sbom.cdx.json

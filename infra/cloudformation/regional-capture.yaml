@@ -1,0 +1,301 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CLOVERSIGHT durable regional capture queue, browser worker, and in-region evidence storage.'
+
+Parameters:
+  Stage:
+    Type: String
+    AllowedValues: [staging, beta, prod]
+  ImageUri:
+    Type: String
+    Description: Digest-pinned browser image copied to ECR in this region.
+  CentralSnapshotBucketName:
+    Type: String
+    Description: Legacy primary bucket retained for reading pre-0.5.0 comparison objects during migration.
+  CentralSnapshotBucketRegion:
+    Type: String
+    Default: us-east-1
+  CentralDataKeyArn:
+    Type: String
+  CentralResultQueueUrl:
+    Type: String
+  CentralResultQueueArn:
+    Type: String
+  CentralResultQueueRegion:
+    Type: String
+  CustomerOrigin:
+    Type: String
+    AllowedPattern: '^https://[^/]+$'
+  ReservedCaptureConcurrency:
+    Type: Number
+    Default: 64
+    MinValue: 2
+    MaxValue: 500
+  OpsAlertEmail:
+    Type: String
+    Default: ''
+    AllowedPattern: '^$|^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$'
+    Description: Independent regional SNS alarm email. Confirm its subscription in this Region.
+  ResourceOwner:
+    Type: String
+    Default: CLOVERSIGHT
+    AllowedPattern: '^[A-Za-z0-9._@+-]{1,128}$'
+
+Rules:
+  ProductionNeedsOperationalRecipient:
+    RuleCondition: !Equals [!Ref Stage, prod]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref OpsAlertEmail, '']]
+        AssertDescription: Production regional capture alarms require an operational SNS recipient.
+
+Conditions:
+  HasOpsAlertEmail: !Not [!Equals [!Ref OpsAlertEmail, '']]
+
+Resources:
+  CaptureBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: RetainExceptOnCreate
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub webwatch-${Stage}-${AWS::AccountId}-${AWS::Region}-captures
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+      PublicAccessBlockConfiguration: { BlockPublicAcls: true, BlockPublicPolicy: true, IgnorePublicAcls: true, RestrictPublicBuckets: true }
+      OwnershipControls: { Rules: [{ ObjectOwnership: BucketOwnerEnforced }] }
+      LifecycleConfiguration:
+        TransitionDefaultMinimumObjectSize: all_storage_classes_128K
+        Rules:
+          - { Id: ExpireRunResults, Status: Enabled, Prefix: 'run-results/', ExpirationInDays: 2, AbortIncompleteMultipartUpload: { DaysAfterInitiation: 1 } }
+          - { Id: ExpireHistory7Days, Status: Enabled, Prefix: 'capture-history/7/', ExpirationInDays: 9 }
+          - { Id: ExpireHistory30Days, Status: Enabled, Prefix: 'capture-history/30/', ExpirationInDays: 32 }
+          - Id: TierHistory90Days
+            Status: Enabled
+            Prefix: capture-history/90/
+            Transitions: [{ StorageClass: STANDARD_IA, TransitionInDays: 31 }]
+            ExpirationInDays: 92
+          - Id: TierHistory180Days
+            Status: Enabled
+            Prefix: capture-history/180/
+            Transitions: [{ StorageClass: STANDARD_IA, TransitionInDays: 31 }, { StorageClass: GLACIER_IR, TransitionInDays: 90 }]
+            ExpirationInDays: 182
+          - Id: TierHistory365Days
+            Status: Enabled
+            Prefix: capture-history/365/
+            Transitions: [{ StorageClass: STANDARD_IA, TransitionInDays: 31 }, { StorageClass: GLACIER_IR, TransitionInDays: 90 }]
+            ExpirationInDays: 367
+          - Id: TierHistoryIndefinite
+            Status: Enabled
+            Prefix: capture-history/indefinite/
+            Transitions: [{ StorageClass: STANDARD_IA, TransitionInDays: 31 }, { StorageClass: GLACIER_IR, TransitionInDays: 90 }]
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods: [GET]
+            AllowedOrigins: [!Ref CustomerOrigin]
+            AllowedHeaders: ['*']
+            MaxAge: 300
+      Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Purpose, Value: RegionalCaptureEvidence }, { Key: Component, Value: CaptureBucket }, { Key: Owner, Value: !Ref ResourceOwner }]
+
+  CaptureDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub webwatch-${Stage}-capture-jobs-dlq
+      SqsManagedSseEnabled: true
+      MessageRetentionPeriod: 1209600
+      Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Component, Value: CaptureDeadLetterQueue }, { Key: Owner, Value: !Ref ResourceOwner }]
+  CaptureQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub webwatch-${Stage}-capture-jobs
+      SqsManagedSseEnabled: true
+      VisibilityTimeout: 1200
+      MessageRetentionPeriod: 345600
+      ReceiveMessageWaitTimeSeconds: 20
+      RedrivePolicy: { deadLetterTargetArn: !GetAtt CaptureDeadLetterQueue.Arn, maxReceiveCount: 5 }
+      Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Component, Value: CaptureQueue }, { Key: Owner, Value: !Ref ResourceOwner }]
+
+  RegionalCaptureRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement: [{ Effect: Allow, Principal: { Service: lambda.amazonaws.com }, Action: sts:AssumeRole }]
+      Policies:
+        - PolicyName: CaptureRuntime
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # Missing cached results and newly addressed evidence must return
+              # 404 to the worker; without ListBucket, S3 returns 403 instead.
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt CaptureBucket.Arn
+              - Effect: Allow
+                Action: [s3:GetObject, s3:PutObject]
+                Resource:
+                  - !Sub '${CaptureBucket.Arn}/capture-history/*'
+                  - !Sub '${CaptureBucket.Arn}/run-results/*'
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource: !Sub '${CaptureBucket.Arn}/baselines/*'
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:s3:::${CentralSnapshotBucketName}/history/*'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${CentralSnapshotBucketName}/baselines/*'
+              - Effect: Allow
+                Action: [kms:Decrypt, kms:DescribeKey]
+                Resource: !Ref CentralDataKeyArn
+                Condition:
+                  StringEquals:
+                    'kms:ViaService': !Sub 's3.${CentralSnapshotBucketRegion}.amazonaws.com'
+                    'kms:CallerAccount': !Ref 'AWS::AccountId'
+                  StringLike:
+                    'kms:EncryptionContext:aws:s3:arn': [!Sub 'arn:${AWS::Partition}:s3:::${CentralSnapshotBucketName}', !Sub 'arn:${AWS::Partition}:s3:::${CentralSnapshotBucketName}/*']
+              - Effect: Allow
+                Action: [sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes, sqs:ChangeMessageVisibility]
+                Resource: !GetAtt CaptureQueue.Arn
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource: !Ref CentralResultQueueArn
+              - Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents]
+                Resource: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/webwatch-${Stage}-regional-capture:*'
+      Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Component, Value: RegionalCaptureRole }, { Key: Owner, Value: !Ref ResourceOwner }]
+
+  RegionalCaptureFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub webwatch-${Stage}-regional-capture
+      PackageType: Image
+      Architectures: [x86_64]
+      Role: !GetAtt RegionalCaptureRole.Arn
+      MemorySize: 2048
+      EphemeralStorage: { Size: 2048 }
+      Timeout: 180
+      ReservedConcurrentExecutions: !Ref ReservedCaptureConcurrency
+      Code: { ImageUri: !Ref ImageUri }
+      ImageConfig: { Command: [src/aws/regional-capture-worker.handler] }
+      Environment:
+        Variables:
+          CAPTURE_QUEUE_URL: !Ref CaptureQueue
+          APP_ENV: !Ref Stage
+          CAPTURE_BUCKET_NAME: !Ref CaptureBucket
+          SNAPSHOT_BUCKET_NAME: !Ref CaptureBucket
+          LEGACY_SNAPSHOT_BUCKET_NAME: !Ref CentralSnapshotBucketName
+          LEGACY_SNAPSHOT_BUCKET_REGION: !Ref CentralSnapshotBucketRegion
+          SNAPSHOT_BUCKET_REGION: !Ref 'AWS::Region'
+          CAPTURE_RESULT_QUEUE_URL: !Ref CentralResultQueueUrl
+          CAPTURE_RESULT_QUEUE_REGION: !Ref CentralResultQueueRegion
+          CAPTURE_WIDTH: 1440
+          CAPTURE_HEIGHT: 900
+          CAPTURE_TIMEOUT_MS: 150000
+          MAX_PAGE_BYTES: 10000000
+          ALLOWED_PRIVATE_TARGETS: 'false'
+          LOG_LEVEL: info
+      Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Component, Value: RegionalCaptureFunction }, { Key: Owner, Value: !Ref ResourceOwner }]
+
+  RegionalCaptureEventSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      FunctionName: !Ref RegionalCaptureFunction
+      EventSourceArn: !GetAtt CaptureQueue.Arn
+      BatchSize: 1
+      FunctionResponseTypes: [ReportBatchItemFailures]
+      ScalingConfig: { MaximumConcurrency: !Ref ReservedCaptureConcurrency }
+
+  RegionalCaptureLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: { LogGroupName: !Sub '/aws/lambda/${RegionalCaptureFunction}', RetentionInDays: 14, Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Component, Value: RegionalCaptureLogGroup }, { Key: Owner, Value: !Ref ResourceOwner }] }
+
+  RegionalOpsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Component, Value: RegionalOpsKey }, { Key: Owner, Value: !Ref ResourceOwner }]
+      Description: !Sub 'CLOVERSIGHT ${Stage} ${AWS::Region} operational alarm encryption'
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { AWS: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:root' }
+            Action: 'kms:*'
+            Resource: '*'
+          - Effect: Allow
+            Principal: { Service: cloudwatch.amazonaws.com }
+            Action: [kms:Decrypt, kms:GenerateDataKey*]
+            Resource: '*'
+            Condition:
+              StringEquals: { 'aws:SourceAccount': !Ref 'AWS::AccountId' }
+              ArnLike: { 'aws:SourceArn': !Sub 'arn:${AWS::Partition}:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:*' }
+  RegionalOpsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Component, Value: RegionalOpsTopic }, { Key: Owner, Value: !Ref ResourceOwner }]
+      TopicName: !Sub 'webwatch-${Stage}-${AWS::Region}-capture-ops'
+      # CloudWatch requires a customer-managed key that grants its service
+      # principal access; alias/aws/sns cannot be customized for that publisher.
+      KmsMasterKeyId: !GetAtt RegionalOpsKey.Arn
+  RegionalOpsTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics: [!Ref RegionalOpsTopic]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: cloudwatch.amazonaws.com }
+            Action: sns:Publish
+            Resource: !Ref RegionalOpsTopic
+            Condition:
+              StringEquals: { 'aws:SourceAccount': !Ref 'AWS::AccountId' }
+              ArnLike: { 'aws:SourceArn': !Sub 'arn:${AWS::Partition}:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:*' }
+  RegionalOpsEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: HasOpsAlertEmail
+    Properties: { TopicArn: !Ref RegionalOpsTopic, Protocol: email, Endpoint: !Ref OpsAlertEmail }
+  RegionalCaptureErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties: { AlarmDescription: Regional browser invocation errors; handled internal outcomes are covered separately by primary incomplete-run and maintenance alarms, Namespace: AWS/Lambda, MetricName: Errors, Dimensions: [{ Name: FunctionName, Value: !Ref RegionalCaptureFunction }], Statistic: Sum, Period: 300, EvaluationPeriods: 1, Threshold: 0, ComparisonOperator: GreaterThanThreshold, TreatMissingData: notBreaching, AlarmActions: [!Ref RegionalOpsTopic], Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Component, Value: RegionalCaptureErrorAlarm }, { Key: Owner, Value: !Ref ResourceOwner }] }
+  RegionalCaptureThrottleAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties: { AlarmDescription: Regional browser invocations are throttled, Namespace: AWS/Lambda, MetricName: Throttles, Dimensions: [{ Name: FunctionName, Value: !Ref RegionalCaptureFunction }], Statistic: Sum, Period: 300, EvaluationPeriods: 2, Threshold: 0, ComparisonOperator: GreaterThanThreshold, TreatMissingData: notBreaching, AlarmActions: [!Ref RegionalOpsTopic], Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Component, Value: RegionalCaptureThrottleAlarm }, { Key: Owner, Value: !Ref ResourceOwner }] }
+  RegionalCaptureQueueAgeAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties: { AlarmDescription: Regional capture queue age is approaching the 900-second run deadline; platform delay is not a monitored-site outage, Namespace: AWS/SQS, MetricName: ApproximateAgeOfOldestMessage, Dimensions: [{ Name: QueueName, Value: !GetAtt CaptureQueue.QueueName }], Statistic: Maximum, Period: 60, EvaluationPeriods: 3, Threshold: 300, ComparisonOperator: GreaterThanThreshold, TreatMissingData: notBreaching, AlarmActions: [!Ref RegionalOpsTopic], Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Component, Value: RegionalCaptureQueueAgeAlarm }, { Key: Owner, Value: !Ref ResourceOwner }] }
+  RegionalCaptureDlqAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties: { AlarmDescription: Regional capture DLQ contains messages, Namespace: AWS/SQS, MetricName: ApproximateNumberOfMessagesVisible, Dimensions: [{ Name: QueueName, Value: !GetAtt CaptureDeadLetterQueue.QueueName }], Statistic: Maximum, Period: 300, EvaluationPeriods: 1, Threshold: 0, ComparisonOperator: GreaterThanThreshold, TreatMissingData: notBreaching, AlarmActions: [!Ref RegionalOpsTopic], Tags: [{ Key: Application, Value: WebWatch }, { Key: Stage, Value: !Ref Stage }, { Key: Component, Value: RegionalCaptureDlqAlarm }, { Key: Owner, Value: !Ref ResourceOwner }] }
+
+  CaptureBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CaptureBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - { Sid: DenyInsecureTransport, Effect: Deny, Principal: '*', Action: 's3:*', Resource: [!GetAtt CaptureBucket.Arn, !Sub '${CaptureBucket.Arn}/*'], Condition: { Bool: { 'aws:SecureTransport': 'false', 'aws:PrincipalIsAWSService': 'false' } } }
+  QueueTransportPolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues: [!Ref CaptureQueue, !Ref CaptureDeadLetterQueue]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Principal: '*'
+            Action: 'sqs:*'
+            # A shared SQS policy needs a single Resource per statement.
+            # This Deny applies only to queues in the Queues attachment list.
+            Resource: '*'
+            Condition: { Bool: { 'aws:SecureTransport': 'false', 'aws:PrincipalIsAWSService': 'false' } }
+
+Outputs:
+  FunctionName: { Value: !Ref RegionalCaptureFunction }
+  FunctionArn: { Value: !GetAtt RegionalCaptureFunction.Arn }
+  CaptureBucketName: { Value: !Ref CaptureBucket }
+  CaptureBucketRegion: { Value: !Ref 'AWS::Region' }
+  CaptureQueueName: { Value: !GetAtt CaptureQueue.QueueName }
+  CaptureQueueUrl: { Value: !Ref CaptureQueue }
+  CaptureQueueArn: { Value: !GetAtt CaptureQueue.Arn }
+  CaptureDeadLetterQueueUrl: { Value: !Ref CaptureDeadLetterQueue }
+  OpsTopicArn: { Value: !Ref RegionalOpsTopic }

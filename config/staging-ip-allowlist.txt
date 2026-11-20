@@ -1,0 +1,3 @@
+# SiteWatch staging access allow-list
+# One public egress CIDR per line.
+24.207.26.70/32

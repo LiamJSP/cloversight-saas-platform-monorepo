@@ -1,0 +1,20 @@
+# Match the project's exact playwright package version; the image supplies its
+# Chromium binary and OS libraries. This is solely a test image, never deployed.
+FROM mcr.microsoft.com/playwright:v1.63.0-noble
+
+# Upstream Playwright images use Node 24 LTS. Fail if this changes.
+RUN node -e "if (Number(process.versions.node.split('.')[0]) !== 24) throw new Error('Browser acceptance image must use Node 24');"
+
+WORKDIR /workspace
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
+    WEBWATCH_TEST_BROWSER_MODE=bundled
+
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+
+COPY apps ./apps
+COPY src ./src
+COPY scripts ./scripts
+COPY tests ./tests
+
+CMD ["npm", "run", "test:browser"]

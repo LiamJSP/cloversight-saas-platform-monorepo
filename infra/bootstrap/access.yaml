@@ -1,0 +1,354 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: One-time CLOVERSIGHT deployment bootstrap. Run with an MFA-protected administrator session, never root access keys.
+
+Parameters:
+  DeploymentPrincipalArn:
+    Type: String
+    Description: IAM Identity Center provisioned role ARN (or another federated role ARN) allowed to assume the CLOVERSIGHT deployment role.
+  ResourcePrefix:
+    Type: String
+    Default: webwatch
+    AllowedPattern: '^[a-z0-9-]{3,32}$'
+  ArtifactExpirationDays:
+    Type: Number
+    Default: 30
+    MinValue: 7
+    MaxValue: 365
+  SesReceiptRuleSetName:
+    Type: String
+    Default: webwatch-shared-inbound
+    AllowedPattern: '^[A-Za-z0-9._-]{1,64}$'
+    Description: Shared regional SES receipt-rule set used by staging, beta, and production environment rules.
+
+Resources:
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+      PublicAccessBlockConfiguration: { BlockPublicAcls: true, BlockPublicPolicy: true, IgnorePublicAcls: true, RestrictPublicBuckets: true }
+      OwnershipControls: { Rules: [{ ObjectOwnership: BucketOwnerEnforced }] }
+      VersioningConfiguration: { Status: Enabled }
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireDeploymentArtifacts
+            Status: Enabled
+            ExpirationInDays: !Ref ArtifactExpirationDays
+            NoncurrentVersionExpiration: { NoncurrentDays: 7 }
+            AbortIncompleteMultipartUpload: { DaysAfterInitiation: 1 }
+      Tags: [{ Key: Application, Value: WebWatch }, { Key: Purpose, Value: DeploymentArtifacts }]
+
+  WorkerRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      RepositoryName: !Sub '${ResourcePrefix}-browser-worker'
+      ImageScanningConfiguration: { ScanOnPush: true }
+      ImageTagMutability: IMMUTABLE
+      EncryptionConfiguration: { EncryptionType: AES256 }
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {"rules":[{"rulePriority":1,"description":"Expire untagged build remnants after seven days; retain tagged deployment releases","selection":{"tagStatus":"untagged","countType":"sinceImagePushed","countUnit":"days","countNumber":7},"action":{"type":"expire"}}]}
+      Tags: [{ Key: Application, Value: WebWatch }]
+
+  SharedSesReceiptRuleSet:
+    Type: AWS::SES::ReceiptRuleSet
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties: { RuleSetName: !Ref SesReceiptRuleSetName }
+
+  CloudFormationExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ResourcePrefix}-cloudformation-execution'
+      MaxSessionDuration: 7200
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: cloudformation.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: WebWatchStackResources
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: WebWatchResourceServices
+                Effect: Allow
+                Action:
+                  - apigateway:*
+                  - budgets:*
+                  - cloudfront:*
+                  - cloudwatch:DeleteAlarms
+                  - cloudwatch:DescribeAlarms
+                  - cloudwatch:ListTagsForResource
+                  - cloudwatch:PutMetricAlarm
+                  - cloudwatch:TagResource
+                  - cloudwatch:UntagResource
+                  - cognito-idp:*
+                  - dynamodb:*
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:GetRepositoryPolicy
+                  - ecr:SetRepositoryPolicy
+                  - events:*
+                  - kms:*
+                  - lambda:*
+                  - logs:*
+                  - route53:ChangeResourceRecordSets
+                  - route53:GetChange
+                  - route53:GetHostedZone
+                  - route53:ListResourceRecordSets
+                  - s3:*
+                  - secretsmanager:*
+                  - ses:*
+                  - sns:*
+                  - sqs:*
+                  - wafv2:*
+                Resource: '*'
+              - Sid: ManageOnlyWebWatchRoles
+                Effect: Allow
+                Action:
+                  - iam:CreateRole
+                  - iam:DeleteRole
+                  - iam:GetRole
+                  - iam:UpdateRole
+                  - iam:UpdateAssumeRolePolicy
+                  - iam:PutRolePolicy
+                  - iam:DeleteRolePolicy
+                  - iam:GetRolePolicy
+                  - iam:ListAttachedRolePolicies
+                  - iam:ListRolePolicies
+                  - iam:AttachRolePolicy
+                  - iam:DetachRolePolicy
+                  - iam:TagRole
+                  - iam:UntagRole
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/webwatch-staging-*'
+                  - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/webwatch-beta-*'
+                  - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/webwatch-prod-*'
+              - Sid: PassOnlyWebWatchRuntimeRolesToLambda
+                Effect: Allow
+                Action: iam:PassRole
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/webwatch-staging-*'
+                  - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/webwatch-beta-*'
+                  - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/webwatch-prod-*'
+                Condition: { StringEquals: { 'iam:PassedToService': lambda.amazonaws.com } }
+              - Sid: CreateServiceLinkedRolesWhenRequired
+                Effect: Allow
+                Action: iam:CreateServiceLinkedRole
+                Resource: '*'
+                Condition:
+                  StringLike:
+                    iam:AWSServiceName:
+                      - cloudfront.amazonaws.com
+                      - cognito-idp.amazonaws.com
+                      - replication.s3.amazonaws.com
+
+  DeploymentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ResourcePrefix}-deployment'
+      MaxSessionDuration: 7200
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { AWS: !Ref DeploymentPrincipalArn }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DeployWebWatch
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: InspectIdentityAndRegions
+                Effect: Allow
+                Action: [sts:GetCallerIdentity, ec2:DescribeRegions]
+                Resource: '*'
+              - Sid: InspectDynamoIndexDeployment
+                Effect: Allow
+                Action: dynamodb:DescribeTable
+                Resource: !Sub 'arn:${AWS::Partition}:dynamodb:*:${AWS::AccountId}:table/webwatch-*'
+              - Sid: OperateWebWatchStacks
+                Effect: Allow
+                Action:
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:CreateStack
+                  - cloudformation:DeleteChangeSet
+                  - cloudformation:DeleteStack
+                  - cloudformation:DescribeChangeSet
+                  - cloudformation:DescribeStackEvents
+                  - cloudformation:DescribeStackResource
+                  - cloudformation:DescribeStackResources
+                  - cloudformation:DescribeStacks
+                  - cloudformation:ListStackResources
+                  - cloudformation:ContinueUpdateRollback
+                  - cloudformation:CancelUpdateStack
+                  - cloudformation:DetectStackDrift
+                  - cloudformation:DescribeStackDriftDetectionStatus
+                  - cloudformation:DescribeStackResourceDrifts
+                  - cloudformation:ExecuteChangeSet
+                  - cloudformation:GetTemplate
+                  - cloudformation:GetTemplateSummary
+                  - cloudformation:ListChangeSets
+                  - cloudformation:UpdateStack
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:cloudformation:*:${AWS::AccountId}:stack/webwatch-*/*'
+                  - !Sub 'arn:${AWS::Partition}:cloudformation:*:aws:transform/Serverless-2016-10-31'
+              - Sid: ValidateTemplates
+                Effect: Allow
+                Action:
+                  - cloudformation:ValidateTemplate
+                  - cloudformation:EstimateTemplateCost
+                Resource: '*'
+              - Sid: DiagnoseRuntime
+                Effect: Allow
+                Action:
+                  - cloudwatch:DescribeAlarms
+                  - cloudwatch:GetMetricData
+                  - cloudwatch:GetMetricStatistics
+                  - cloudwatch:ListMetrics
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                  - logs:FilterLogEvents
+                  - logs:GetLogEvents
+                  - sqs:GetQueueAttributes
+                  - sqs:ListDeadLetterSourceQueues
+                Resource: '*'
+              - Sid: InspectDeploymentCertificate
+                Effect: Allow
+                Action: acm:DescribeCertificate
+                Resource: !Sub 'arn:${AWS::Partition}:acm:us-east-1:${AWS::AccountId}:certificate/*'
+              - Sid: InspectFinancialDestinationsAndTags
+                Effect: Allow
+                Action: [ce:ListCostAllocationTags, sns:ListSubscriptionsByTopic]
+                Resource: '*'
+              - Sid: InspectLambdaCapacity
+                Effect: Allow
+                Action: lambda:GetAccountSettings
+                Resource: '*'
+              - Sid: InspectApplicationReservations
+                Effect: Allow
+                Action: lambda:GetFunctionConcurrency
+                Resource: !Sub 'arn:${AWS::Partition}:lambda:*:${AWS::AccountId}:function:webwatch-*'
+              - Sid: PreflightCloudFront
+                Effect: Allow
+                Action:
+                  - cloudfront:ListDistributions
+                  - cloudfront:ListFunctions
+                  - cloudfront:ListCachePolicies
+                  - cloudfront:ListOriginRequestPolicies
+                  - cloudfront:ListResponseHeadersPolicies
+                  - cloudfront:ListOriginAccessControls
+                Resource: '*'
+              - Sid: InspectDeploymentDns
+                Effect: Allow
+                Action: [route53:GetHostedZone, route53:ListResourceRecordSets]
+                Resource: !Sub 'arn:${AWS::Partition}:route53:::hostedzone/*'
+              - Sid: InspectDeploymentQuotas
+                Effect: Allow
+                Action: servicequotas:ListServiceQuotas
+                Resource: '*'
+              - Sid: InspectCognitoDomains
+                Effect: Allow
+                Action: cognito-idp:DescribeUserPoolDomain
+                Resource: '*'
+              - Sid: ManageStagingAllowLists
+                Effect: Allow
+                Action:
+                  - wafv2:GetIPSet
+                  - wafv2:UpdateIPSet
+                  - wafv2:ListIPSets
+                  - wafv2:GetWebACL
+                Resource: '*'
+              - Sid: OperateSesReceiving
+                Effect: Allow
+                Action:
+                  - ses:DescribeActiveReceiptRuleSet
+                  - ses:DescribeReceiptRuleSet
+                  - ses:GetIdentityVerificationAttributes
+                  - ses:GetSendQuota
+                  - ses:GetSendStatistics
+                  - ses:SetActiveReceiptRuleSet
+                Resource: '*'
+              - Sid: InviteStewards
+                Effect: Allow
+                Action:
+                  - cognito-idp:AdminCreateUser
+                  - cognito-idp:AdminGetUser
+                  - cognito-idp:AdminDisableUser
+                  - cognito-idp:ListUsers
+                Resource: !Sub 'arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*'
+              - Sid: PassExecutionRole
+                Effect: Allow
+                Action: iam:PassRole
+                Resource: !GetAtt CloudFormationExecutionRole.Arn
+                Condition: { StringEquals: { 'iam:PassedToService': cloudformation.amazonaws.com } }
+              - Sid: UploadArtifacts
+                Effect: Allow
+                Action: [s3:GetBucketLocation, s3:ListBucket]
+                Resource: !GetAtt ArtifactBucket.Arn
+              - Sid: UploadArtifactObjects
+                Effect: Allow
+                Action: [s3:GetObject, s3:GetObjectVersion, s3:PutObject, s3:DeleteObject]
+                Resource: !Sub '${ArtifactBucket.Arn}/webwatch/*'
+              - Sid: PushWorkerImages
+                Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:BatchGetImage
+                  - ecr:CompleteLayerUpload
+                  - ecr:CreateRepository
+                  - ecr:DescribeImages
+                  - ecr:DescribeRepositories
+                  - ecr:GetAuthorizationToken
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:InitiateLayerUpload
+                  - ecr:ListImages
+                  - ecr:PutLifecyclePolicy
+                  - ecr:PutImage
+                  - ecr:TagResource
+                  - ecr:UploadLayerPart
+                Resource: '*'
+              - Sid: SyncStaticSitesAndInvalidate
+                Effect: Allow
+                Action:
+                  - s3:DeleteObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:PutObject
+                  - cloudfront:CreateInvalidation
+                  - cloudfront:GetDistribution
+                  - cloudfront:GetInvalidation
+                Resource: '*'
+              - Sid: PopulateApplicationSecrets
+                Effect: Allow
+                Action:
+                  - secretsmanager:DescribeSecret
+                  - secretsmanager:GetSecretValue
+                  - secretsmanager:PutSecretValue
+                  - secretsmanager:UpdateSecret
+                Resource: !Sub 'arn:${AWS::Partition}:secretsmanager:*:${AWS::AccountId}:secret:webwatch-*'
+              - Sid: EncryptApplicationSecrets
+                Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:Encrypt
+                  - kms:GenerateDataKey
+                  - kms:DescribeKey
+                Resource: !Sub 'arn:${AWS::Partition}:kms:*:${AWS::AccountId}:key/*'
+                Condition:
+                  StringEquals:
+                    'aws:ResourceTag/Application': WebWatch
+
+Outputs:
+  ArtifactBucketName: { Value: !Ref ArtifactBucket }
+  WorkerRepositoryUri: { Value: !GetAtt WorkerRepository.RepositoryUri }
+  DeploymentRoleArn: { Value: !GetAtt DeploymentRole.Arn }
+  CloudFormationExecutionRoleArn: { Value: !GetAtt CloudFormationExecutionRole.Arn }
+  SesReceiptRuleSetName: { Value: !Ref SharedSesReceiptRuleSet }

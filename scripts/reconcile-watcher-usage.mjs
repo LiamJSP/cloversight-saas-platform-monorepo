@@ -1,0 +1,14 @@
+import { loadEnvFile } from '../src/env.mjs';
+import { loadConfig } from '../src/config.mjs';
+import { createLogger } from '../src/logger.mjs';
+import { DynamoStateStore } from '../src/storage/dynamo-store.mjs';
+import { reconcileWatcherUsage } from '../src/domain/usage-guards.mjs';
+loadEnvFile();
+const args = process.argv.slice(2);
+const accountIndex = args.indexOf('--account');
+const accountId = accountIndex >= 0 ? args[accountIndex + 1] : null;
+if (!accountId || accountId.startsWith('--') || args.some((value, index) => !['--account', '--apply'].includes(value) && index !== accountIndex + 1)) throw new Error('Usage: npm run usage:reconcile -- --account ACCOUNT_ID [--apply]');
+const config = loadConfig();
+if (!config.coreTableName || !config.idempotencyTableName || !config.closedAccountsTableName) throw new Error('Set CORE_TABLE_NAME, IDEMPOTENCY_TABLE_NAME and CLOSED_ACCOUNTS_TABLE_NAME to the existing physical tables.');
+const store = new DynamoStateStore({ coreTableName: config.coreTableName, idempotencyTableName: config.idempotencyTableName, closedAccountsTableName: config.closedAccountsTableName, region: config.awsRegion, logger: createLogger(config.logLevel) });
+console.log(JSON.stringify(await reconcileWatcherUsage(store, accountId, args.includes('--apply')), null, 2));

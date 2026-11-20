@@ -1,0 +1,1 @@
+const watcherId=process.argv[2]??'watch_demo';const response=await fetch(`http://127.0.0.1:4010/api/watchers/${encodeURIComponent(watcherId)}/check`,{method:'POST',headers:{'content-type':'application/json','x-local-user':'acct_demo','x-local-role':'customer'},body:'{}'});console.log(JSON.stringify(await response.json(),null,2));if(!response.ok)process.exit(1);

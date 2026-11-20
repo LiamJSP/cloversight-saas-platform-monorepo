@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#fbf7fa">
+  <title>CLOVERSIGHT Customer Portal</title>
+  <link rel="icon" href="/favicon.svg?v=0.5.17" media="(prefers-color-scheme: light)"><link rel="icon" href="/favicon-dark.svg?v=0.5.17" media="(prefers-color-scheme: dark)">
+  <script src="/static/theme.js?v=0.5.17"></script>
+  <link rel="stylesheet" href="/static/pico.css?v=0.5.17">
+  <link rel="stylesheet" href="/static/styles.css?v=0.5.17">
+  <link rel="stylesheet" href="/static/theme.css?v=0.5.17">
+  <link rel="stylesheet" href="/app-static/components.css?v=0.5.17-steward">
+  <link rel="stylesheet" href="/app-static/results-evidence.css?v=0.5.17">
+  <link rel="stylesheet" href="/app-static/mobile-layout.css?v=0.5.17">
+  <link rel="stylesheet" href="/app-static/regional-globe/globe.css?v=0.5.17">
+  <link rel="stylesheet" href="/static/stage-globe.css?v=0.5.17-steward">
+  <link rel="stylesheet" href="/static/brand.css?v=0.5.17">
+</head>
+<body class="pico app-shell">
+  <a class="skip-link" href="#workspace">Skip to workspace</a>
+  <main id="signed-out-root" class="signed-out-root" hidden></main>
+
+  <div id="portal-shell" class="app-layout" hidden>
+    <aside class="app-rail">
+      <a class="brand" href="/" data-public-home aria-label="CLOVERSIGHT home">
+        <span class="brand-images"><img class="brand-full brand-light" src="/static/brand/cloversight.svg?v=0.5.17" width="516" height="72" alt="CLOVERSIGHT"><img class="brand-full brand-dark" src="/static/brand/cloversight-dark.svg?v=0.5.17" width="516" height="72" alt=""><img class="brand-compact brand-light" src="/static/brand/cloversight-mark.svg?v=0.5.17" width="72" height="72" alt=""><img class="brand-compact brand-dark" src="/static/brand/cloversight-mark-dark.svg?v=0.5.17" width="72" height="72" alt=""></span>
+      </a>
+
+      <button id="portal-menu-toggle" class="portal-menu-toggle secondary" type="button" aria-expanded="false" aria-controls="portal-navigation" aria-label="Open customer portal navigation">
+        <span class="portal-menu-icon" aria-hidden="true"></span>
+      </button>
+
+      <nav id="portal-navigation" class="sidebar" aria-label="Customer portal" data-open="false">
+        <button data-view="dashboard" class="active" type="button" title="Overview">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.7 12 3l9 7.7v9.1c0 .7-.5 1.2-1.2 1.2H4.2C3.5 21 3 20.5 3 19.8z"/><path d="M9 21v-6h6v6"/></svg>
+          <span>Overview</span>
+        </button>
+        <button data-view="watchers" type="button" title="Watchers">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg>
+          <span>Watchers</span>
+        </button>
+        <button data-view="gallery" type="button" title="Archived Results">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          <span>Archived Results</span>
+        </button>
+        <button data-view="reports" type="button" title="Reports">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v5h5M8 12h8M8 16h8"/></svg>
+          <span>Reports</span>
+        </button>
+        <button data-view="team" type="button" title="Team" data-owner-nav>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20v-2a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v2M15 14h2a4 4 0 0 1 4 4v2"/></svg>
+          <span>Team</span>
+        </button>
+        <button data-view="actionlog" type="button" title="Action log" data-owner-nav>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+          <span>Action log</span>
+        </button>
+        <button data-view="billing" type="button" title="Plans and billing" data-owner-nav>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18M16 15h2"/></svg>
+          <span>Plans &amp; billing</span>
+        </button>
+        <button data-view="profile" type="button" title="Account profile">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2z"/></svg>
+          <span>My profile</span>
+        </button>
+        <button data-view="debug" type="button" title="Developer desk" data-debug-nav data-advanced hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 4-6 8 6 8M16 4l6 8-6 8M14 2l-4 20"/></svg>
+          <span>Developer desk</span>
+        </button>
+      </nav>
+
+      <div class="rail-signature" aria-hidden="true">
+        <span class="rail-orbit">
+          <svg class="orbit-svg rail-orbit-svg" viewBox="-16 -16 152 152" aria-hidden="true" focusable="false">
+            <defs>
+              <radialGradient id="rail-planet-fill" cx="36%" cy="31%" r="72%">
+                <stop offset="0" stop-color="#fffdfd"/>
+                <stop offset="0.2" stop-color="#ffdaed"/>
+                <stop offset="0.58" stop-color="#ee7cbc"/>
+                <stop offset="1" stop-color="#a70c68"/>
+              </radialGradient>
+              <radialGradient id="rail-moon-fill" cx="34%" cy="30%" r="72%">
+                <stop offset="0" stop-color="#fff8ce"/>
+                <stop offset="0.38" stop-color="#f3c65a"/>
+                <stop offset="0.74" stop-color="#ba7418"/>
+                <stop offset="1" stop-color="#71400d"/>
+              </radialGradient>
+              <clipPath id="rail-orbit-back" clipPathUnits="userSpaceOnUse"><rect x="-16" y="-16" width="152" height="76"/></clipPath>
+              <clipPath id="rail-orbit-front" clipPathUnits="userSpaceOnUse"><rect x="-16" y="60" width="152" height="76"/></clipPath>
+              <path id="rail-orbit-path" d="M .5 60 A 59.5 22.5 0 1 1 119.5 60 A 59.5 22.5 0 1 1 .5 60"/>
+            </defs>
+            <g transform="rotate(-18 60 60)">
+              <use class="orbit-ring-path" href="#rail-orbit-path"/>
+              <g class="orbit-moon-motion orbit-moon-back-layer" clip-path="url(#rail-orbit-back)">
+                <circle class="orbit-moon rail-orbit-moon" r="7" fill="url(#rail-moon-fill)">
+                  <animateMotion begin="-1.875s" calcMode="linear" dur="7.5s" repeatCount="indefinite" rotate="0"><mpath href="#rail-orbit-path"/></animateMotion>
+                </circle>
+              </g>
+              <g class="orbit-planet-art rail-planet-art">
+                <circle class="orbit-planet" cx="60" cy="60" r="39" fill="url(#rail-planet-fill)"/>
+                <circle class="orbit-planet-glint" cx="48" cy="47" r="10"/>
+              </g>
+              <g class="orbit-moon-motion orbit-moon-front-layer" clip-path="url(#rail-orbit-front)">
+                <circle class="orbit-moon rail-orbit-moon" r="7" fill="url(#rail-moon-fill)">
+                  <animateMotion begin="-1.875s" calcMode="linear" dur="7.5s" repeatCount="indefinite" rotate="0"><mpath href="#rail-orbit-path"/></animateMotion>
+                </circle>
+              </g>
+              <circle class="orbit-moon orbit-moon-static rail-orbit-moon" cx="119.5" cy="60" r="7" fill="url(#rail-moon-fill)"/>
+            </g>
+          </svg>
+        </span>
+        <p>Monitor<br>what matters</p>
+      </div>
+    </aside>
+
+    <section class="app-stage">
+      <div class="app-stage-globe ww-regional" data-hero-globe aria-hidden="true" inert><div class="rg-stage"><div class="rg-spills"></div><div class="rg-host"></div><div class="rg-pin-label"></div><div class="rg-fallback" hidden></div></div><span hidden data-hero-region></span></div>
+      <header class="app-topbar">
+        <div class="topbar-context">
+          <span class="topbar-orbit" aria-hidden="true">
+            <svg class="orbit-svg topbar-orbit-svg" viewBox="-7 -7 46 46" aria-hidden="true" focusable="false">
+              <defs>
+                <linearGradient id="topbar-planet-fill" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#ee7cbc"/>
+                  <stop offset="1" stop-color="#6b224f"/>
+                </linearGradient>
+                <radialGradient id="topbar-moon-fill" cx="35%" cy="30%" r="72%">
+                  <stop offset="0" stop-color="#fff7c2"/>
+                  <stop offset="0.48" stop-color="#e8b13c"/>
+                  <stop offset="1" stop-color="#9d5e13"/>
+                </radialGradient>
+                <clipPath id="topbar-orbit-back" clipPathUnits="userSpaceOnUse"><rect x="-7" y="-7" width="46" height="23"/></clipPath>
+                <clipPath id="topbar-orbit-front" clipPathUnits="userSpaceOnUse"><rect x="-7" y="16" width="46" height="23"/></clipPath>
+                <path id="topbar-orbit-path" d="M .5 16 A 15.5 9.5 0 1 1 31.5 16 A 15.5 9.5 0 1 1 .5 16"/>
+              </defs>
+              <g transform="rotate(-14 16 16)">
+                <use class="orbit-ring-path" href="#topbar-orbit-path"/>
+                <g class="orbit-moon-motion orbit-moon-back-layer" clip-path="url(#topbar-orbit-back)">
+                  <circle class="orbit-moon topbar-orbit-moon" r="3" fill="url(#topbar-moon-fill)">
+                    <animateMotion begin="-1.2s" calcMode="linear" dur="4.8s" repeatCount="indefinite" rotate="0"><mpath href="#topbar-orbit-path"/></animateMotion>
+                  </circle>
+                </g>
+                <g class="orbit-planet-art topbar-planet-art">
+                  <circle class="orbit-planet" cx="16" cy="16" r="8.5" fill="url(#topbar-planet-fill)"/>
+                  <circle class="orbit-planet-glint" cx="13.2" cy="13.1" r="2.15"/>
+                </g>
+                <g class="orbit-moon-motion orbit-moon-front-layer" clip-path="url(#topbar-orbit-front)">
+                  <circle class="orbit-moon topbar-orbit-moon" r="3" fill="url(#topbar-moon-fill)">
+                    <animateMotion begin="-1.2s" calcMode="linear" dur="4.8s" repeatCount="indefinite" rotate="0"><mpath href="#topbar-orbit-path"/></animateMotion>
+                  </circle>
+                </g>
+                <circle class="orbit-moon orbit-moon-static topbar-orbit-moon" cx="31.5" cy="16" r="3" fill="url(#topbar-moon-fill)"/>
+              </g>
+            </svg>
+          </span>
+          <span>Operations Status</span>
+        </div>
+        <div id="topbar-summary" class="topbar-summary" aria-live="polite">
+          <div class="topbar-identities"><span><small>Team:</small> <strong data-topbar-team>—</strong></span><span><small>User:</small> <strong data-topbar-user>—</strong></span></div>
+          <div class="topbar-outages"><span><small>Active Outages:</small> <strong data-topbar-active-outages>0</strong></span><span><small>Most Recent Outage:</small> <strong data-topbar-recent-outage>None recorded</strong></span></div>
+        </div>
+        <div class="actions topbar-cluster">
+          <button id="advanced-mode" class="secondary tertiary-action advanced-mode-toggle" type="button" aria-pressed="false"><span>Advanced mode</span><small data-advanced-status>Off</small></button>
+          <button id="sign-out" class="secondary tertiary-action sign-out" type="button" hidden>Sign out</button>
+        </div>
+      </header>
+      <main id="workspace" class="workspace">
+        <div class="skeleton" style="height:140px"></div>
+      </main>
+    </section>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  <script type="module" src="/app-static/app.js?v=0.5.19"></script>
+  <script type="module" src="/hero-globe.js?v=0.5.17"></script>
+</body>
+</html>

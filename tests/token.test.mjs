@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import { createResponseToken,verifyResponseToken } from '../src/notifications/token.mjs';
+test('signed response tokens round trip and reject changes',()=>{const secret='s'.repeat(32);const token=createResponseToken({alertId:'a',recipientId:'r',expiresAt:'2999-01-01T00:00:00Z'},secret);assert.equal(verifyResponseToken(token,secret).alertId,'a');assert.throws(()=>verifyResponseToken(`${token}x`,secret))});
+test('expired token is rejected',()=>{const secret='s'.repeat(32);const token=createResponseToken({expiresAt:'2000-01-01T00:00:00Z'},secret);assert.throws(()=>verifyResponseToken(token,secret))});
