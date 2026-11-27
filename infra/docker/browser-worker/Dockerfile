@@ -1,5 +1,5 @@
 # Update the reviewed index digest via a pull request. Build for linux/amd64.
-FROM public.ecr.aws/lambda/nodejs:22@sha256:065128a355f31465dba90c6687f3a864631e9c0d97301ec4377c0bc0d7018a68
+FROM public.ecr.aws/lambda/nodejs:24@sha256:5f161369102f24d3b088ca52e8e83eeee55e701080ee91af858b4cb2f762b6ef
 
 ARG WEBWATCH_CAPTURE_RELEASE
 ARG WEBWATCH_CAPTURE_SOURCE_SHA256
